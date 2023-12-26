@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="segmation_paging分段分页动机 Solution to fragmentation(碎片): permit(允许) the logical address  space of processes to be noncontiguous(不连续).  The view of memory is different between logical (programmer’s ): a v">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Segnation paging">
+<meta property="og:url" content="http://example.com/2023/05/13/12.segmation_page/index.html">
+<meta property="og:site_name" content="boolsatellite">
+<meta property="og:description" content="segmation_paging分段分页动机 Solution to fragmentation(碎片): permit(允许) the logical address  space of processes to be noncontiguous(不连续).  The view of memory is different between logical (programmer’s ): a v">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-12_22-29-16.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-13_16-30-28.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-13_16-35-17.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-13_17-19-09.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-13_17-36-17.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-13_17-45-49.png">
+<meta property="article:published_time" content="2023-05-13T09:54:04.701Z">
+<meta property="article:modified_time" content="2023-05-17T07:46:18.467Z">
+<meta property="article:author" content="boolsatellite">
+<meta property="article:tag" content="oprating system">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-12_22-29-16.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Segnation paging</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="boolsatellite" type="application/atom+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/05/14/13.page%20table/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/05/12/11.Memory%20managemnet/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/05/13/12.segmation_page/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/05/13/12.segmation_page/&text=Segnation paging"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/05/13/12.segmation_page/&title=Segnation paging"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/05/13/12.segmation_page/&is_video=false&description=Segnation paging"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Segnation paging&body=Check out this article: http://example.com/2023/05/13/12.segmation_page/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/05/13/12.segmation_page/&title=Segnation paging"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/05/13/12.segmation_page/&title=Segnation paging"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/05/13/12.segmation_page/&title=Segnation paging"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/05/13/12.segmation_page/&title=Segnation paging"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/05/13/12.segmation_page/&name=Segnation paging&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/05/13/12.segmation_page/&t=Segnation paging"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#segmation-paging%E5%88%86%E6%AE%B5%E5%88%86%E9%A1%B5"><span class="toc-number">1.</span> <span class="toc-text">segmation_paging分段分页</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A8%E6%9C%BA"><span class="toc-number">1.1.</span> <span class="toc-text">动机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%AE%B5"><span class="toc-number">1.2.</span> <span class="toc-text">分段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%92%E5%88%86%E6%AE%B5"><span class="toc-number">1.2.1.</span> <span class="toc-text">划分段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%BB%E8%BE%91%E5%9C%B0%E5%9D%80-16%E4%BD%8D%E6%AE%B5%E5%BC%8F%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.2.2.</span> <span class="toc-text">逻辑地址 16位段式地址转换实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E9%A1%B5"><span class="toc-number">1.3.</span> <span class="toc-text">分页</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%96%B9%E6%A1%88"><span class="toc-number">1.3.1.</span> <span class="toc-text">基本方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E9%A1%B5%E7%A1%AC%E4%BB%B6"><span class="toc-number">1.3.2.</span> <span class="toc-text">分页硬件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LOGICAL-ADDRESS"><span class="toc-number">1.3.3.</span> <span class="toc-text">LOGICAL ADDRESS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E9%A1%B5%E4%B8%8E%E5%88%86%E6%AE%B5%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.4.</span> <span class="toc-text">分页与分段的区别</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Segnation paging
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">boolsatellite</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-05-13T09:54:04.701Z" itemprop="datePublished">2023-05-13</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/oprating-system/" rel="tag">oprating system</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="segmation-paging分段分页"><a href="#segmation-paging分段分页" class="headerlink" title="segmation_paging分段分页"></a>segmation_paging分段分页</h1><h2 id="动机"><a href="#动机" class="headerlink" title="动机"></a>动机</h2><ul>
+<li>Solution to fragmentation(碎片): permit(允许) the logical address  space of processes to be noncontiguous(不连续). <ul>
+<li>The view of memory is different between</li>
+<li>logical (programmer’s ): a variable-sized(可变大小的) segments</li>
+<li>physical : a linear(线性的) array of bytes</li>
+</ul>
+</li>
+<li>The hardware could provide a memory mechanism(机制)  that mapped(映射) the logical view to the actual(实际的) physical  memory.</li>
+</ul>
+<h2 id="分段"><a href="#分段" class="headerlink" title="分段"></a>分段</h2><h3 id="划分段"><a href="#划分段" class="headerlink" title="划分段"></a>划分段</h3><p>将：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">void f()&#123;    //在未划分段时，地址时连续的，从 0 开始直至结束</span><br><span class="line">1.//...... </span><br><span class="line">2.//...... </span><br><span class="line">3.//...... </span><br><span class="line">4.&#125; </span><br><span class="line">5.void g()&#123; </span><br><span class="line">6.//...... </span><br><span class="line">7.//...... </span><br><span class="line">8.&#125; </span><br><span class="line">9.int main()&#123; </span><br><span class="line">10.//...... </span><br><span class="line">11.//...... </span><br><span class="line">12.return 0; </span><br><span class="line">13.&#125;</span><br></pre></td></tr></table></figure>
+
+<p>划分为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">0.void f()&#123;    //划分段后每段的起始地址为 0 ，每个段有对应的标号，段与段之间不需要连续</span><br><span class="line">1.//...... </span><br><span class="line">2.//...... </span><br><span class="line">3.//...... </span><br><span class="line">4.&#125;    // #1 表示第一段</span><br><span class="line">0.void g()&#123; </span><br><span class="line">1.//...... </span><br><span class="line">2.//...... </span><br><span class="line">3.&#125;    //#3 表示第三段</span><br><span class="line">0.int main()&#123; </span><br><span class="line">1.//...... </span><br><span class="line">2.//...... </span><br><span class="line">3.return 0;</span><br><span class="line">4.&#125;    //#2 表示第二段</span><br></pre></td></tr></table></figure>
+
+<p><strong>在分段之后的程序中，访问逻辑地址需要表明段号和偏移</strong></p>
+<p>注意：上述代码前的标号代表指令而非C语言语句</p>
+<p>由于内存被分成了许多段，而且段与段之间并不连续，这就意味着需要一张段表来存放对应的信息用来寻找对应的逻辑地址</p>
+<p>段表：段号，基址，限长</p>
+<p>当拿到一个逻辑地址&lt;段号：偏移&gt;时，首先将段表内相应段号对应的基址值存放到base寄存器中，将对应的段限长存放到limit寄存器中，先执行保护（比较偏移与段限长，若未超过段限长则说明地址有效）后进行转换（物理地址 &#x3D; base + offset）</p>
+<h3 id="逻辑地址-16位段式地址转换实例"><a href="#逻辑地址-16位段式地址转换实例" class="headerlink" title="逻辑地址 16位段式地址转换实例"></a>逻辑地址 16位段式地址转换实例</h3><p><img src="/img/oprating_system/Snipaste_2023-05-12_22-29-16.png"></p>
+<ul>
+<li><p>假设逻辑地址的段号占2bits，段内位移占14bits，此时 PC寄存器的值为0x240</p>
+</li>
+<li><p>下⼀条指令的物理地址为：</p>
+<blockquote>
+<p>PC：0b0000 00,10 0100 0000</p>
+<p>故段号为0</p>
+<p>下一条指令物理地址：0x4000 + 0x240 &#x3D; 0x4240</p>
+</blockquote>
+</li>
+<li><p>Move 0x4050 → $a0, Move PC+4 → PC，下条指令物理地址为：</p>
+<blockquote>
+<p>PC由0x240 变为 0x244：0000 0010 0100 0100</p>
+<p>短号为 0 </p>
+<p>吓一跳物理地址为 0x4000 + 0x244 &#x3D; 0x4244</p>
+</blockquote>
+</li>
+<li><p>Move 0x0248 → $ra (return address!), Move 0x0360 → PC，下条指令物理地址为：</p>
+<blockquote>
+<p>上述汇编指令意味着，将 0x0248存放到ra寄存器中（做函数的返回地址）</p>
+<p>将PC寄存器中的值更新为 0x0360：0000 0011 0110 0000<br>对应短号为 0</p>
+<p>下一条物理地址为：0x4000 + 0x0360 &#x3D; 0x4360</p>
+</blockquote>
+</li>
+<li><p>Move 0x0→$v0, Move PC+4→PC，下条指令物理地址为：0x4364</p>
+</li>
+<li><p>“lb $t0,($a0)”(将a0寄存器中所示内存地址处取出1个字节存到寄存器t0中)，该内存地址为：</p>
+<blockquote>
+<p>a0中存放的值为：0x4040：0b0100 0000 0101 0000</p>
+<p>对应的段为 1</p>
+<p>运行时物理内存为：0x4800 + 0x50 &#x3D; 0x4850</p>
+</blockquote>
+</li>
+</ul>
+<p>分段并没有完全解决外部碎片的问题</p>
+<h2 id="分页"><a href="#分页" class="headerlink" title="分页"></a>分页</h2><h3 id="基本方案"><a href="#基本方案" class="headerlink" title="基本方案"></a>基本方案</h3><p>将内存看作是由若干个相等大小的分区组成，我们称这个分区为帧或页框</p>
+<p>将进程也分为与帧大小相同的若干个，称为页面，只有切割进程的最后一块可能小于页面大小</p>
+<p><img src="/img/oprating_system/Snipaste_2023-05-13_16-30-28.png"></p>
+<p>如图：将内存分为 19 块等大的帧，进程分为 11 块等大的页面，将这 11个等大的页面离散的存放在memory中，当然就需要一张表用于存放帧的使用情况，记录了页面也页框的对应情况这个表被称为页表</p>
+<p><img src="/img/oprating_system/Snipaste_2023-05-13_16-35-17.png"></p>
+<p>分页后指令的逻辑地址将从 0 开始，为了确定物理地址，就必须确定页面号与页内偏移，根据页面号通过查询页表找到对应的页框号，从而确定物理地址</p>
+<p><strong>physical address &#x3D; frame_no * pagesize + offset</strong></p>
+<p>操作系统在进行分页地址转换时，直接将页面号替换为页框号与页内偏移进行拼接即可获得物理地址</p>
+<h3 id="分页硬件"><a href="#分页硬件" class="headerlink" title="分页硬件"></a>分页硬件</h3><p><img src="/img/oprating_system/Snipaste_2023-05-13_17-19-09.png"></p>
+<p>CPU根据逻辑地址&lt;页面号，页偏移&gt;，根据页面号查询页表找到对应的段号，将段号与段偏移拼接，得到物理地址</p>
+<h3 id="LOGICAL-ADDRESS"><a href="#LOGICAL-ADDRESS" class="headerlink" title="LOGICAL ADDRESS"></a>LOGICAL ADDRESS</h3><ul>
+<li>The page size (like the frame size) is defined by the hardware. The size of a  page is a power of 2(2的幂次), varying(更改) between 512 bytes and 1 GB per page,  depending(依赖) on the computer architecture(架构). （大小为2的幂次是为了可以拼接运算，目前大多数计算机采用页面大小为 4k）</li>
+<li>The selection of a power of 2 as a page size makes the translation(转化) of a  logical address into a page number and page offset particularly(特别的) easy.</li>
+<li>If the size of the logical address space is 2m , and a page size is 2n bytes,  then the high-order <code>m − n </code>bits of a logical address designate(指定为) the page  number, and the <code>n</code> low-order bits designate the page offset. Thus, the  logical address is as follows:</li>
+</ul>
+<p><img src="/img/oprating_system/Snipaste_2023-05-13_17-36-17.png"></p>
+<h2 id="分页与分段的区别"><a href="#分页与分段的区别" class="headerlink" title="分页与分段的区别"></a>分页与分段的区别</h2><p><img src="/img/oprating_system/Snipaste_2023-05-13_17-45-49.png"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/tags/">tags</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li>
+         
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#segmation-paging%E5%88%86%E6%AE%B5%E5%88%86%E9%A1%B5"><span class="toc-number">1.</span> <span class="toc-text">segmation_paging分段分页</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A8%E6%9C%BA"><span class="toc-number">1.1.</span> <span class="toc-text">动机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%AE%B5"><span class="toc-number">1.2.</span> <span class="toc-text">分段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%92%E5%88%86%E6%AE%B5"><span class="toc-number">1.2.1.</span> <span class="toc-text">划分段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%BB%E8%BE%91%E5%9C%B0%E5%9D%80-16%E4%BD%8D%E6%AE%B5%E5%BC%8F%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.2.2.</span> <span class="toc-text">逻辑地址 16位段式地址转换实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E9%A1%B5"><span class="toc-number">1.3.</span> <span class="toc-text">分页</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%96%B9%E6%A1%88"><span class="toc-number">1.3.1.</span> <span class="toc-text">基本方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E9%A1%B5%E7%A1%AC%E4%BB%B6"><span class="toc-number">1.3.2.</span> <span class="toc-text">分页硬件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LOGICAL-ADDRESS"><span class="toc-number">1.3.3.</span> <span class="toc-text">LOGICAL ADDRESS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E9%A1%B5%E4%B8%8E%E5%88%86%E6%AE%B5%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.4.</span> <span class="toc-text">分页与分段的区别</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/05/13/12.segmation_page/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/05/13/12.segmation_page/&text=Segnation paging"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/05/13/12.segmation_page/&title=Segnation paging"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/05/13/12.segmation_page/&is_video=false&description=Segnation paging"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Segnation paging&body=Check out this article: http://example.com/2023/05/13/12.segmation_page/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/05/13/12.segmation_page/&title=Segnation paging"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/05/13/12.segmation_page/&title=Segnation paging"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/05/13/12.segmation_page/&title=Segnation paging"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/05/13/12.segmation_page/&title=Segnation paging"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/05/13/12.segmation_page/&name=Segnation paging&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/05/13/12.segmation_page/&t=Segnation paging"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2023
+    boolsatellite
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SPWV8NBZ00"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-SPWV8NBZ00');
+    </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

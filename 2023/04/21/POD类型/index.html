@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="POD类型POD(Plain Old Data)，通常用于说明一个类型的属性，尤其是用户自定义类型的属性。Plain，表示了POD是个普通的类型，在C++中常见的类型都有这样的属性，而不像一些存在着虚函数虚继承的类型那么特别。而Old则体现了其与C的兼容性，比如可以用最老的memcpy()函数 进行复制，使用memset()进行初始化等。当然，这样的描述都太过于笼统，具体地，C++11将POD划分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="POD类型">
+<meta property="og:url" content="http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/index.html">
+<meta property="og:site_name" content="boolsatellite">
+<meta property="og:description" content="POD类型POD(Plain Old Data)，通常用于说明一个类型的属性，尤其是用户自定义类型的属性。Plain，表示了POD是个普通的类型，在C++中常见的类型都有这样的属性，而不像一些存在着虚函数虚继承的类型那么特别。而Old则体现了其与C的兼容性，比如可以用最老的memcpy()函数 进行复制，使用memset()进行初始化等。当然，这样的描述都太过于笼统，具体地，C++11将POD划分">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-04-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-04-21T09:18:16.000Z">
+<meta property="article:author" content="boolsatellite">
+<meta property="article:tag" content="c++11">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>POD类型</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="boolsatellite" type="application/atom+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/04/26/auto%E7%B1%BB%E5%9E%8B%E6%8E%A8%E5%AF%BC/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/04/17/%E5%8F%B3%E5%80%BC%E3%80%81%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8%E3%80%81%E5%AE%8C%E7%BE%8E%E8%BD%AC%E5%8F%91/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&text=POD类型"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&title=POD类型"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&is_video=false&description=POD类型"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=POD类型&body=Check out this article: http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&title=POD类型"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&title=POD类型"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&title=POD类型"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&title=POD类型"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&name=POD类型&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&t=POD类型"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#POD%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">POD类型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B9%B3%E5%87%A1"><span class="toc-number">1.1.</span> <span class="toc-text">平凡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E5%87%86%E5%B8%83%E5%B1%80"><span class="toc-number">1.2.</span> <span class="toc-text">标准布局</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POD%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%A5%BD%E5%A4%84%EF%BC%9A"><span class="toc-number">1.3.</span> <span class="toc-text">POD类型的好处：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%9D%99%E6%80%81%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%9A"><span class="toc-number">1.3.1.</span> <span class="toc-text">什么是静态初始化：</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        POD类型
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">boolsatellite</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-04-20T16:00:00.000Z" itemprop="datePublished">2023-04-21</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/c-11/" rel="tag">c++11</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="POD类型"><a href="#POD类型" class="headerlink" title="POD类型"></a>POD类型</h1><p>POD(Plain Old Data)，通常用于说明一个类型的属性，尤其是用户自定义类型的属性。Plain，表示了POD是个普通的类型，在C++中常见的类型都有这样的属性，而不像一些存在着虚函数虚继承的类型那么特别。而Old则体现了其与C的兼容性，比如可以用最老的memcpy()函数 进行复制，使用memset()进行初始化等。当然，这样的描述都太过于笼统，具体地，C++11将POD划分为两个基本概念的合集，即：平凡的（trivial）和标准布局的（standard layout）。</p>
+<h2 id="平凡"><a href="#平凡" class="headerlink" title="平凡"></a>平凡</h2><p>平凡的定义：</p>
+<blockquote>
+<ol>
+<li><p>拥有平凡的<strong>默认</strong>构造函数和析构函数</p>
+<p>平凡的默认构造指的是构造函数什么也不做，由编译器默认生成，当一旦自定义了构造函数，即使构造函数中无参数也无函数体，那么构造函数也不再是平凡的，对于析构函数来说也是类似的，一旦实现析构函数将不再是平凡的，可以使用 &#x3D;default 关键字来显示的声明缺省版本的构造函数，从而使类型恢复平凡</p>
+</li>
+<li><p>拥有平凡的拷贝构造和移动构造函数</p>
+</li>
+<li><p>拥有平凡的拷贝赋值运算符和移动赋值运算符</p>
+</li>
+<li><p>不能包含虚函数以及虚基类</p>
+</li>
+</ol>
+</blockquote>
+<p>在c++11中提供了辅助类模板来判断一个类型是否平凡</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tempalte &lt;<span class="keyword">typename</span> T&gt; <span class="keyword">struct</span> <span class="title class_">std</span>::is_trival;</span><br><span class="line"><span class="comment">//类成员中的value变量中记录了该类型是否为平凡类型 当value为1时为平凡类型，value为0时为非平凡类型</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="标准布局"><a href="#标准布局" class="headerlink" title="标准布局"></a>标准布局</h2><p>POD包含的另一个概念是<strong>标准布局</strong>，标准布局的类或结构体的定义：</p>
+<blockquote>
+<ol>
+<li><p><strong>所以非静态成员</strong>有相同的访问权限</p>
+</li>
+<li><p>在类或者结构体继承时，满足以下情况之一：</p>
+<ul>
+<li>派生类中有非静态成员，且只有一个包含静态成员的基类</li>
+<li>基类中有非静态成员，而派生类中没有非静态成员</li>
+</ul>
+<p>这样的类或结构体也是标准布局的<br><strong>实际上使得非静态成员只要同时出现在基类和派生类之间，其就不属于标准布局，而对于多重继承，一旦非静态成员出现在多个基类中，派生类也不属于标准布局</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">B1</span>&#123;<span class="type">static</span> <span class="type">int</span> a;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D1</span>:B1&#123;<span class="type">int</span> d;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">B2</span>&#123;<span class="type">int</span> a;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D2</span>:B2&#123;<span class="type">static</span> <span class="type">int</span> d;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D3</span>:B2,B1&#123;<span class="type">static</span> <span class="type">int</span> d;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D4</span>:B2&#123;<span class="type">int</span> d;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D5</span>:B2,D1&#123;&#125;;</span><br><span class="line"><span class="comment">//D1、D2和D3都是标准布局的，而D4和D5则不属于标准布局的</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>类中的第一个非静态成员的类型与其基类不同</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">A</span> : B</span><br><span class="line">&#123;</span><br><span class="line">	B b;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//A不是一个标准布局类型，第一个非静态成员的类型为 B 与基类类型相同</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">C</span> : B</span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> a;</span><br><span class="line">	B b;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//C是一个标准布局类型</span></span><br></pre></td></tr></table></figure>
+
+<p>此规则是基于c++中允许优化不包含成员的基类而产生的</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">B1</span>&#123;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">B2</span>&#123;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D1</span>:B1&#123;</span><br><span class="line">    B1 b;<span class="comment">//第一个非静态变量跟基类相同</span></span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D2</span>:B1&#123;</span><br><span class="line">    B2 b;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    D1 d1;</span><br><span class="line">    D2 d2;</span><br><span class="line">    cout&lt;&lt;hex;</span><br><span class="line">    cout&lt;&lt;<span class="built_in">reinterpret_cast</span>&lt;<span class="type">long</span> <span class="type">long</span>&gt;(&amp;d1)&lt;&lt;endl;      <span class="comment">//7ffffffee608</span></span><br><span class="line">    cout&lt;&lt;<span class="built_in">reinterpret_cast</span>&lt;<span class="type">long</span> <span class="type">long</span>&gt;(&amp;(d1.b))&lt;&lt;endl;  <span class="comment">//7ffffffee609</span></span><br><span class="line">    cout&lt;&lt;<span class="built_in">reinterpret_cast</span>&lt;<span class="type">long</span> <span class="type">long</span>&gt;(&amp;(d1.i))&lt;&lt;endl;  <span class="comment">//7ffffffee60c</span></span><br><span class="line">    </span><br><span class="line">    cout&lt;&lt;<span class="built_in">reinterpret_cast</span>&lt;<span class="type">long</span> <span class="type">long</span>&gt;(&amp;d2)&lt;&lt;endl;      <span class="comment">//7ffffffee610</span></span><br><span class="line">    cout&lt;&lt;<span class="built_in">reinterpret_cast</span>&lt;<span class="type">long</span> <span class="type">long</span>&gt;(&amp;(d2.b))&lt;&lt;endl;  <span class="comment">//7ffffffee610</span></span><br><span class="line">    cout&lt;&lt;<span class="built_in">reinterpret_cast</span>&lt;<span class="type">long</span> <span class="type">long</span>&gt;(&amp;(d2.i))&lt;&lt;endl;  <span class="comment">//7ffffffee614</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>D1和D2的区别是第一个非静态成员类型，在D1中第一个非静态成员类型为B1(与基类相同)，D2第一个非静态成员是B2类型。从main函数的打印中可以看到D1中第一个成员的地址与对象的地址不同(相差一个字节)，D2的第一个数据成员地址与对象地址相同。</p>
+<p>事实上，在C++标准中，如果基类没有成员，标准允许派生类的第一 个成员与基类共享地址。因为派生类的地址总是“堆叠”在基类之上 的，所以这样的地址共享，表明了基类并没有占据任何的实际空间 （可以节省一点数据）。<strong>但是如果基类的第一个成员仍然是基类，在 我们的例子中可以看到，编译器仍然会为基类分配1字节的空间。分配为1字节空间是由于C++标准要求类型相同的对象必须地址不同（基类 地址及派生类中成员d的地址必须不同）</strong>，而导致的结果是，对于D1 和D2两种类型而言，其“布局”也就是不同的了</p>
+<p><strong>所以在标准布局的解释中，C++11标准强制要求派生类的第一个非静态成员的类型必须不同于基类。</strong></p>
+</li>
+<li><p>没有虚函数和虚基类</p>
+</li>
+<li><p>所有非静态数据成员均符合标准布局类型，其基类也符合标准布局。这是一个递归的定义</p>
+</li>
+</ol>
+</blockquote>
+<p>在C++11中，我们可以使用模板类来帮助判断类型是否是一个 标准布局的类型</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="keyword">struct</span> <span class="title class_">std</span>::is_standard_layout;</span><br><span class="line">通过is_standard_layout模板类的成员value（is_standard_layout＜T＞::value），我们可以在代码中打印出类型的标准布局属性</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">SLayout1</span>&#123;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SLayout2</span>&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SLayout3</span>:SLayout1&#123;</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SLayout4</span>:SLayout1&#123;</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    SLayout1 y;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SLayout5</span>:SLayout1,SLayout3&#123;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SLayout6</span>&#123;<span class="type">static</span> <span class="type">int</span> y;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SLayout7</span>:SLayout6&#123;<span class="type">int</span> x;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">NonSLayout1</span>:SLayout1&#123;</span><br><span class="line">    SLayout1 x;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">NonSLayout2</span>:SLayout2&#123;<span class="type">int</span> z;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">NonSLayout3</span>:NonSLayout2&#123;&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">NonSLayout4</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;SLayout1&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;SLayout2&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;SLayout3&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;SLayout4&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;SLayout5&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;SLayout6&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;SLayout7&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;NonSLayout1&gt;::value&lt;&lt;endl;<span class="comment">//0</span></span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;NonSLayout2&gt;::value&lt;&lt;endl;<span class="comment">//0</span></span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;NonSLayout3&gt;::value&lt;&lt;endl;<span class="comment">//0</span></span><br><span class="line">    cout&lt;&lt;is_standard_layout&lt;NonSLayout4&gt;::value&lt;&lt;endl;<span class="comment">//0</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>在c++11中对于POD而言就是平凡和标准布局两个方面，要判定某一类型是否是 POD，标准库中的＜type_traits＞头文件也为程序员提供了如下模板类：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="keyword">struct</span> <span class="title class_">std</span>::is_pod;</span><br><span class="line"><span class="comment">//同样也提供了 value成员 用于判断类型是否为 pod 类型</span></span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">union</span> <span class="title class_">U</span>&#123;&#125;;</span><br><span class="line"><span class="keyword">union</span> <span class="title class_">U1</span>&#123;<span class="built_in">U1</span>()&#123;&#125;&#125;;</span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">E</span>&#123;&#125;;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">double</span>*DA;</span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*PF)</span><span class="params">(<span class="type">int</span>,<span class="type">double</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    cout&lt;&lt;is_pod&lt;U&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_pod&lt;U1&gt;::value&lt;&lt;endl;<span class="comment">//0</span></span><br><span class="line">    cout&lt;&lt;is_pod&lt;E&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_pod&lt;<span class="type">int</span>&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_pod&lt;DA&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">    cout&lt;&lt;is_pod&lt;PF&gt;::value&lt;&lt;endl;<span class="comment">//1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="POD类型的好处："><a href="#POD类型的好处：" class="headerlink" title="POD类型的好处："></a>POD类型的好处：</h2><ol>
+<li>字节赋值，代码中我们可以安全地使用memset和memcpy对POD类 型进行初始化和拷贝等操作。</li>
+<li>提供对C内存布局兼容。C++程序可以与C函数进行相互操作，因 为POD类型的数据在C与C++间的操作总是安全的。</li>
+<li>保证了静态初始化的安全有效。静态初始化在很多时候能够提高程序的性能，而POD类型的对象初始化往往更加简单（比如放入目标文件的.bss段，在初始化中直接被赋0）。</li>
+</ol>
+<h3 id="什么是静态初始化："><a href="#什么是静态初始化：" class="headerlink" title="什么是静态初始化："></a>什么是静态初始化：</h3><p>如果初始化值是常量并且静态变量本身是基本数据类型(POD)<br>如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> val = <span class="number">10</span>;            </span><br><span class="line"><span class="type">char</span> strArray[] = <span class="string">&quot;hello! world&quot;</span>;</span><br><span class="line"><span class="comment">// 10 和 &quot;hello world&quot; 为常量，val strArray 为POD类型</span></span><br></pre></td></tr></table></figure>
+
+<p>那么这个初始化过程是在编译期间完成的, 这也就是通常所说的”编译时初始化”.</p>
+<p>若不是上述情况就一定是动态初始化了，<strong>动态初始化又分为两种 加载时初始化 和 使用时初始化</strong>，暂不清楚</p>
+<p>参考：书籍《深入理解c++11》</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/tags/">tags</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li>
+         
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#POD%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">POD类型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B9%B3%E5%87%A1"><span class="toc-number">1.1.</span> <span class="toc-text">平凡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E5%87%86%E5%B8%83%E5%B1%80"><span class="toc-number">1.2.</span> <span class="toc-text">标准布局</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POD%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%A5%BD%E5%A4%84%EF%BC%9A"><span class="toc-number">1.3.</span> <span class="toc-text">POD类型的好处：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%9D%99%E6%80%81%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%9A"><span class="toc-number">1.3.1.</span> <span class="toc-text">什么是静态初始化：</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&text=POD类型"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&title=POD类型"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&is_video=false&description=POD类型"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=POD类型&body=Check out this article: http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&title=POD类型"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&title=POD类型"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&title=POD类型"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&title=POD类型"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&name=POD类型&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/04/21/POD%E7%B1%BB%E5%9E%8B/&t=POD类型"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2023
+    boolsatellite
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SPWV8NBZ00"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-SPWV8NBZ00');
+    </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

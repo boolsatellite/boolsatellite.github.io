@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="CPU SchedulingCPU调度程序基本概念： 多道程序设计的目的将CPU 的利用率最大化。 多个进程同时存在于内存（并发），当一个进程暂不使用CPU时，系统调度另一 个进程占用CPU。  CPU-burst Durrations(CPU突发事件持续时间)  如图：横轴为突发时间持续时间，纵轴为发生的频率 我们将时间位于 0 - 8ms 中的进程称为 CPU-bound program 也可">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPU Scheduling">
+<meta property="og:url" content="http://example.com/2023/05/09/5.CPU%20scheduling/index.html">
+<meta property="og:site_name" content="boolsatellite">
+<meta property="og:description" content="CPU SchedulingCPU调度程序基本概念： 多道程序设计的目的将CPU 的利用率最大化。 多个进程同时存在于内存（并发），当一个进程暂不使用CPU时，系统调度另一 个进程占用CPU。  CPU-burst Durrations(CPU突发事件持续时间)  如图：横轴为突发时间持续时间，纵轴为发生的频率 我们将时间位于 0 - 8ms 中的进程称为 CPU-bound program 也可">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-08_20-48-58.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-09_08-24-27.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-09_08-25-17.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-09_08-50-03.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-09_09-20-40.png">
+<meta property="article:published_time" content="2023-05-09T01:57:19.213Z">
+<meta property="article:modified_time" content="2023-05-17T07:45:39.682Z">
+<meta property="article:author" content="boolsatellite">
+<meta property="article:tag" content="oprating system">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-08_20-48-58.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>CPU Scheduling</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="boolsatellite" type="application/atom+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/05/09/6.Synchronization/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/05/08/4.thread/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/05/09/5.CPU%20scheduling/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/05/09/5.CPU%20scheduling/&text=CPU Scheduling"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/05/09/5.CPU%20scheduling/&title=CPU Scheduling"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/05/09/5.CPU%20scheduling/&is_video=false&description=CPU Scheduling"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CPU Scheduling&body=Check out this article: http://example.com/2023/05/09/5.CPU%20scheduling/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/05/09/5.CPU%20scheduling/&title=CPU Scheduling"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/05/09/5.CPU%20scheduling/&title=CPU Scheduling"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/05/09/5.CPU%20scheduling/&title=CPU Scheduling"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/05/09/5.CPU%20scheduling/&title=CPU Scheduling"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/05/09/5.CPU%20scheduling/&name=CPU Scheduling&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/05/09/5.CPU%20scheduling/&t=CPU Scheduling"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#CPU-Scheduling"><span class="toc-number">1.</span> <span class="toc-text">CPU Scheduling</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU%E8%B0%83%E5%BA%A6%E7%A8%8B%E5%BA%8F"><span class="toc-number">1.1.</span> <span class="toc-text">CPU调度程序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%9A"><span class="toc-number">1.1.1.</span> <span class="toc-text">基本概念：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CPU%E8%B0%83%E5%BA%A6%E7%A8%8B%E5%BA%8F-1"><span class="toc-number">1.1.2.</span> <span class="toc-text">CPU调度程序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU%E8%B0%83%E5%BA%A6%E5%87%86%E5%88%99"><span class="toc-number">1.2.</span> <span class="toc-text">CPU调度准则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95%E7%9A%84%E8%A1%A1%E9%87%8F"><span class="toc-number">1.2.1.</span> <span class="toc-text">调度算法的衡量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">调度算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%88%E6%9D%A5%E5%85%88%E6%9C%8D%E5%8A%A1-FCFS%EF%BC%89"><span class="toc-number">1.3.1.</span> <span class="toc-text">先来先服务(FCFS）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E7%89%87%E8%BD%AE%E8%BD%AC-ROUND-ROBIN"><span class="toc-number">1.3.2.</span> <span class="toc-text">时间片轮转(ROUND ROBIN)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E7%9F%AD%E4%BD%9C%E4%B8%9A%E4%BC%98%E5%85%88-SJF"><span class="toc-number">1.3.3.</span> <span class="toc-text">最短作业优先(SJF)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E8%B0%83%E5%BA%A6-PRIORITY"><span class="toc-number">1.3.4.</span> <span class="toc-text">优先级调度(PRIORITY)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E8%B0%83%E5%BA%A6-PRIORITY-1"><span class="toc-number">1.3.5.</span> <span class="toc-text">优先级调度(PRIORITY)</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        CPU Scheduling
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">boolsatellite</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-05-09T01:57:19.213Z" itemprop="datePublished">2023-05-09</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/oprating-system/" rel="tag">oprating system</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="CPU-Scheduling"><a href="#CPU-Scheduling" class="headerlink" title="CPU Scheduling"></a>CPU Scheduling</h1><h2 id="CPU调度程序"><a href="#CPU调度程序" class="headerlink" title="CPU调度程序"></a>CPU调度程序</h2><h3 id="基本概念："><a href="#基本概念：" class="headerlink" title="基本概念："></a>基本概念：</h3><ul>
+<li>多道程序设计的目的将CPU 的利用率最大化。</li>
+<li>多个进程同时存在于内存（并发），当一个进程暂不使用CPU时，系统调度另一 个进程占用CPU。</li>
+</ul>
+<p>CPU-burst Durrations(CPU突发事件持续时间)</p>
+<p><img src="/img/oprating_system/Snipaste_2023-05-08_20-48-58.png"></p>
+<p>如图：横轴为突发时间持续时间，纵轴为发生的频率</p>
+<p>我们将时间位于 0 - 8ms 中的进程称为 CPU-bound program 也可以被称为短进程 ，大于 8ms的进程称为 I&#x2F;O-bound program 也可以被称为长进程，从频率长看大多数进程属于短进程</p>
+<h3 id="CPU调度程序-1"><a href="#CPU调度程序-1" class="headerlink" title="CPU调度程序"></a>CPU调度程序</h3><p>Whenever the CPU becomes idle(闲置), the operating  system must select one of the processes in the ready  queue to be executed. The selection process is carried  out by the CPU scheduler.</p>
+<p>存在两种调度方法：</p>
+<ul>
+<li>非抢占调度（Nonpreemptive scheduling）：一旦某个进程得到CPU，就会一直占用到终止或等待状态。</li>
+<li>抢占调度 (preemptive scheduling)：调度程序被动被动离开CPU如：时间片到期</li>
+</ul>
+<h2 id="CPU调度准则"><a href="#CPU调度准则" class="headerlink" title="CPU调度准则"></a>CPU调度准则</h2><h3 id="调度算法的衡量"><a href="#调度算法的衡量" class="headerlink" title="调度算法的衡量"></a>调度算法的衡量</h3><ul>
+<li>CPU利用率：CPU的忙碌程度</li>
+<li>响应时间：从提交任务到第一次响应的时间，针对交互式系统</li>
+<li>等待时间：进程<strong>累积</strong>在就绪队列中等待的时间</li>
+<li>周转时间：从提交到完成的时间</li>
+<li>呑吐率：每个时钟单位处理的任务数</li>
+<li>公平性：以合理的方式让各个进程共享CPU</li>
+</ul>
+<p>假设作业 i 提交给系统的时刻是ts，完成的时刻是tf， 所需运行时间为 tk，那么：</p>
+<blockquote>
+<p>单个作业的周转时间 ti：完成时间 - 开始时间<br>$$<br>ti &#x3D; tf - ts<br>$$<br>平均作业周转时间 T：n为操作系统的进程数，将每个进程的周转时间累加后在平均<br>$$<br>T &#x3D; \sum_{i&#x3D;1}^n ti \times 1 &#x2F; n<br>$$</p>
+</blockquote>
+<h2 id="调度算法"><a href="#调度算法" class="headerlink" title="调度算法"></a>调度算法</h2><h3 id="先来先服务-FCFS）"><a href="#先来先服务-FCFS）" class="headerlink" title="先来先服务(FCFS）"></a>先来先服务(FCFS）</h3><ul>
+<li><p>First-Come, First-Served (FCFS)</p>
+<ul>
+<li><p>早期系统里，FCFS意味着一个程序会一直运行到结束(尽管其中会出 现等待I&#x2F;O的情况)</p>
+</li>
+<li><p>非抢占式</p>
+</li>
+<li><p>如今，当一个程序阻塞时会让出CPU</p>
+<blockquote>
+<p>假设当前就绪队列中依次存在 p1  p2  p3  p4 四个进程，p1 开始运行，运行过程中调用IO设备，此时将让出CPU进入等待状态，位于就绪队列队头的 p2 被调度器从就绪队列中取出进入运行状态，一段时间后 p1 完成IO操作要返回就绪队列，要注意的是，p1入队(从队尾入队)</p>
+</blockquote>
+<p><img src="/img/oprating_system/Snipaste_2023-05-09_08-24-27.png"></p>
+<p><img src="/img/oprating_system/Snipaste_2023-05-09_08-25-17.png"></p>
+<p>第二种排列方式比第一种要好，平均周转时间缩短为18</p>
+</li>
+<li><p>优点：简单易行<br>缺点：需要控制进程先到的顺序才能时平均周转时间减少</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="时间片轮转-ROUND-ROBIN"><a href="#时间片轮转-ROUND-ROBIN" class="headerlink" title="时间片轮转(ROUND ROBIN)"></a>时间片轮转(ROUND ROBIN)</h3><ul>
+<li><p>时间片轮转(ROUND ROBIN)</p>
+<ul>
+<li>每个进程都可以得到相同的CPU时间(CPU时间片,  time slice)，当时间片到达，进程将被剥夺CPU并加入就绪队列的尾部 。（分时系统）</li>
+<li>抢占式调度算法</li>
+<li>n个就绪队列中的进程和时间片q：<br>每个进程获得1&#x2F;n的CPU时间，大约是q个时间单位<br>没有进程等待时间会超过 (n-1)q</li>
+<li>例题：</li>
+</ul>
+<p><img src="/img/oprating_system/Snipaste_2023-05-09_08-50-03.png"></p>
+<blockquote>
+<p>等待时间分别是：</p>
+<p>P1&#x3D;(68-20)+(112-88)+(145-132)&#x3D;85	   P2&#x3D;(20-0)+(88-40)+(132-108)&#x3D;92<br>P3&#x3D;(40-0)+(108-60)&#x3D;88                           dP4&#x3D;(60-0)&#x3D;60 </p>
+<ul>
+<li>平均等待时间 &#x3D; (85+92+88+60)&#x2F;4&#x3D;81.25</li>
+<li>平均周转时间 &#x3D; (153+145+112+68)&#x2F;4&#x3D;119.5</li>
+</ul>
+</blockquote>
+<ul>
+<li>RR算法分析<ul>
+<li>时间片（time slice）取选<ul>
+<li>取值太小：进程切换开销显著增大(不能小于进程切换的时间)</li>
+<li>取值较大：响应速度下降（取值无穷大将退化成FCFS）</li>
+<li>一般时间片的选取范围为 10ms~100ms</li>
+<li>上下文切换的时间大概为 0.1ms~1ms （1%的CPU时间开销）</li>
+</ul>
+</li>
+<li>RR算法优缺点<ul>
+<li>公平算法(+) </li>
+<li>对长作业带来额外的切换开销(-)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="最短作业优先-SJF"><a href="#最短作业优先-SJF" class="headerlink" title="最短作业优先(SJF)"></a>最短作业优先(SJF)</h3><ul>
+<li>SJF(Shortest Job First)：下一次调度总是选择所需要 CPU时间最短的那个作业（进程）。</li>
+</ul>
+<p><img src="/img/oprating_system/Snipaste_2023-05-09_09-20-40.png"></p>
+<p>在FCFS算法中，我们提及到，如果我们知道每个作业所需的运行时长，并按照时长从低到高的顺序依次服务，这样求出的平均周转时间是很低的，这也就是SJF算法的由来</p>
+<ul>
+<li>SJF是一个非抢占式的算法，当人也可以改造为一个抢占式SRTF</li>
+</ul>
+<p>以上图举例：当0时刻P1到达，1时刻 P2 到达，此时 P1 的剩余时间就变为 7 P2 剩余时间少于 P1 故优先运行 P2，依次类推直至进程全部运行完成</p>
+<ul>
+<li>SJF&#x2F;SRTF算法分析<ul>
+<li>该算法总是将短进程移到长进程之前执行，因此平均等待时间 最小，该算法被证明是最优的。</li>
+<li>饥饿现象：长进程可能长时间无法获得CPU</li>
+<li>该算法需要事先知道进程所需的CPU时间，预测一个进程的CPU时间并非易事</li>
+</ul>
+</li>
+<li>优缺点<ul>
+<li>优化了响应时间(+)</li>
+<li>难以预测作业CPU时间(-)</li>
+<li>不公平算法(-)</li>
+</ul>
+</li>
+</ul>
+<h3 id="优先级调度-PRIORITY"><a href="#优先级调度-PRIORITY" class="headerlink" title="优先级调度(PRIORITY)"></a>优先级调度(PRIORITY)</h3><ul>
+<li><p>优先级通常为固定区间的数字，如[0, 10]：</p>
+<ul>
+<li>数字大小与优先级高低的关系在不同系统中实现不一样，以 Linux为例，0为最高优先级。 </li>
+<li>调度策略：下一次调度总是选择优先级最高的进程。</li>
+<li>SJF是优先级调度的一个特例。</li>
+<li>优先级调度可以是抢占式，也可以是非抢占式。</li>
+</ul>
+</li>
+<li><p>优先级的定义</p>
+<ul>
+<li>静态优先级<ul>
+<li>优先级保持不变，但会出现不公平(饥饿)现象</li>
+</ul>
+</li>
+<li>动态优先级（退化Aging）<ul>
+<li>根据进程占用CPU时间：当进程占有CPU时间愈长，则慢慢降低它的优先级</li>
+<li>根据进程等待CPU时间：当进程在就绪队列中等待时间愈长，则慢慢提升它的优先级</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><h3 id="优先级调度-PRIORITY-1"><a href="#优先级调度-PRIORITY-1" class="headerlink" title="优先级调度(PRIORITY)"></a>优先级调度(PRIORITY)</h3><ul>
+<li>优先级通常为固定区间的数字，如[0, 10]：<ul>
+<li>数字大小与优先级高低的关系在不同系统中实现不一样，以 Linux为例，0为最高优先级。 </li>
+<li>调度策略：下一次调度总是选择优先级最高的进程。</li>
+<li>SJF是优先级调度的一个特例。</li>
+<li>优先级调度可以是抢占式，也可以是非抢占式。</li>
+</ul>
+</li>
+<li>优先级的定义<ul>
+<li>静态优先级<ul>
+<li>优先级保持不变，但会出现不公平(饥饿)现象</li>
+</ul>
+</li>
+<li>动态优先级（退化Aging）<ul>
+<li>根据进程占用CPU时间：当进程占有CPU时间愈长，则慢慢降低它的优先级</li>
+<li>根据进程等待CPU时间：当进程在就绪队列中等待时间愈长，则慢慢提升它的优先级</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>在linux中每个线程中存在一个控制该线程属性的结构体，<code>struct pthread_attr_t</code>，也就是pthread_create函数的第二个参数的所指值，线程属性在使用时要使用<code>pthread_attr_init</code>初始化，使用完之后<code>pthread_attr_destory</code>销毁</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">   <span class="type">int</span> <span class="title function_">pthread_attr_init</span><span class="params">(<span class="type">pthread_attr_t</span> *attr)</span>;</span><br><span class="line">   <span class="type">int</span> <span class="title function_">pthread_attr_destroy</span><span class="params">(<span class="type">pthread_attr_t</span> *attr)</span>;   </span><br><span class="line"><span class="comment">/*pthread_attr_init之后，pthread_t结构所包含的内容就是操作系统实现</span></span><br><span class="line"><span class="comment">   支持的线程所有属性的默认值。</span></span><br><span class="line"><span class="comment">   如果pthread_attr_init实现时为属性对象分配了动态内存空间，</span></span><br><span class="line"><span class="comment">   pthread_attr_destroy还会用无效的值初始化属性对象，因此如果经</span></span><br><span class="line"><span class="comment">   pthread_attr_destroy去除初始化之后的pthread_attr_t结构被</span></span><br><span class="line"><span class="comment">   pthread_create函数调用，将会导致其返回错误。*/</span></span><br></pre></td></tr></table></figure>
+
+<p>线程属性其结构体为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">&#123;</span><br><span class="line">       <span class="type">int</span>                           detachstate;    线程的分离状态</span><br><span class="line">       <span class="type">int</span>                           schedpolicy;   *线程调度策略 </span><br><span class="line">       <span class="keyword">struct</span> <span class="title class_">sched_param</span>      schedparam;           线程的调度参数</span><br><span class="line">       <span class="type">int</span>                          inheritsched;    线程的继承性</span><br><span class="line">       <span class="type">int</span>                          scope;          *线程的作用域</span><br><span class="line">       <span class="type">size_t</span>                       guardsize;       线程栈末尾的警戒缓冲区大小</span><br><span class="line">       <span class="type">int</span>                          stackaddr_set;   </span><br><span class="line">       <span class="type">void</span> *                     stackaddr;         线程栈的位置</span><br><span class="line">       <span class="type">size_t</span>                      stacksize;        线程栈的大小</span><br><span class="line">&#125;<span class="type">pthread_attr_t</span>;</span><br></pre></td></tr></table></figure>
+
+<p>分离状态：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">我们已经在前面已经知道，在默认情况下线程是非分离状态的，这种情况   </span><br><span class="line">下，原有的线程等待创建的线程结束。只有当pthread_join() 函数返回       </span><br><span class="line">时，创建的线程才算终止，才能释放自己占用的系统资源。   </span><br><span class="line">   </span><br><span class="line">分离线程没有被其他的线程所等待，自己运行结束了，线程也就终止了，</span><br><span class="line">马上释放系统资源。</span><br><span class="line">   </span><br><span class="line">通俗的说也就是：我们知道一般我们要等待(pthread_join)一个线程的结束，</span><br><span class="line">主要是想知道它的结束状态，否则等待一般是没有什么意义的！但是<span class="keyword">if</span>有一</span><br><span class="line">些线程的终止态我们压根就不想知道，那么就可以使用“分离”属性，那么我</span><br><span class="line">们就无须等待管理，只要线程自己结束了，自己释放src就可以咯！这样更</span><br><span class="line">方便！</span><br><span class="line">   </span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_getdetachstate</span><span class="params">(<span class="type">const</span> <span class="type">pthread_attr_t</span> * attr, <span class="type">int</span> * detachstate)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_setdetachstate</span><span class="params">(<span class="type">pthread_attr_t</span> * attr, <span class="type">int</span> detachstate)</span>;</span><br><span class="line">参数：attr:线程属性变量</span><br><span class="line">        detachstate:分离状态属性   </span><br><span class="line">若成功返回<span class="number">0</span>，若失败返回<span class="number">-1</span>。</span><br><span class="line">   </span><br><span class="line">设置的时候可以有两种选择：</span><br><span class="line">&lt;<span class="number">1</span>&gt;.detachstate参数为：PTHREAD_CREATE_DETACHED     分离状态启动</span><br><span class="line">&lt;<span class="number">2</span>&gt;.detachstate参数为：PTHREAD_CREATE_JOINABLE    正常启动线程</span><br></pre></td></tr></table></figure>
+
+<p>线程的作用域：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">函数pthread_attr_setscope和pthread_attr_getscope分别</span><br><span class="line">用来设置和得到线程的作用域。       </span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span>   </span></span><br><span class="line"><span class="type">int</span>    <span class="title function_">pthread_attr_getscope</span><span class="params">( <span class="type">const</span> <span class="type">pthread_attr_t</span> * attr, <span class="type">int</span> * scope )</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_setscope</span><span class="params">( <span class="type">pthread_attr_t</span>*, <span class="type">int</span> scope )</span>;</span><br><span class="line">参数：</span><br><span class="line">        attr               线程属性变量</span><br><span class="line">        scope         线程的作用域       </span><br><span class="line">若成功返回<span class="number">0</span>，若失败返回<span class="number">-1</span>。</span><br><span class="line">   </span><br><span class="line">作用域控制线程是否在进程内或在系统级上竞争资源，可能的值是</span><br><span class="line">PTHREAD_SCOPE_PROCESS  （进程内竞争资源）</span><br><span class="line">PTHREAD_SCOPE_SYSTEM   （系统级竞争资源）linux中默认，这是由linux的线程模型为<span class="number">1</span>：<span class="number">1</span>模型决定的·</span><br></pre></td></tr></table></figure>
+
+<p>调度策略及优先级</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">        函数pthread_attr_setschedpolicy和pthread_attr_getschedpolicy分别用</span><br><span class="line">        来设置和得到线程的调度策略。</span><br><span class="line">       </span><br><span class="line">        <span class="type">int</span> <span class="title function_">pthread_attr_getschedpolicy</span><span class="params">(<span class="type">const</span> <span class="type">pthread_attr_t</span> *, <span class="type">int</span> * policy)</span></span><br><span class="line">        <span class="type">int</span> <span class="title function_">pthread_attr_setschedpolicy</span><span class="params">(pthread_attr_*, <span class="type">int</span> policy)</span></span><br><span class="line">        参数：</span><br><span class="line">                attr            线程属性变量</span><br><span class="line">                policy        调度策略   </span><br><span class="line">        若成功返回0，若失败返回-1。</span><br><span class="line">       </span><br><span class="line">        所谓调度策略也就是我们之前在OS中所学过的那些调度算法：</span><br><span class="line">        SCHED_FIFO    ：先进先出</span><br><span class="line">        SCHED_RR       ：轮转法</span><br><span class="line">        SCHED_OTHER    ：其他方法</span><br><span class="line">       </span><br><span class="line">        SCHED_OTHER是不支持优先级使用的,而SCHED_FIFO和SCHED_RR</span><br><span class="line">        支持优先级的使用,他们分别为1和99,数值越大优先级越高.</span><br><span class="line">       </span><br><span class="line">        注意：</span><br><span class="line">                &gt; 此处的SCHED_FIFO是允许被高优先级抢占的！</span><br><span class="line">                &gt; 也就是有高优先级的必须先运行</span><br><span class="line">                &gt; SCHED_RR是设置一个时间片</span><br><span class="line">                &gt; 当有SCHED_FIFO或SCHED_RR策赂的线程在一个条件变量</span><br><span class="line">                上等持或等持加锁同一个互斥量时，它们将以优先级顺序被唤</span><br><span class="line">                醒。即，如果一个低优先级的SCHED_FIFO线程和一个高优先</span><br><span class="line">                织的SCHED_FIFO线程都在等待锁相同的互斥且，则当互斥量</span><br><span class="line">                被解锁时，高优先级线程将总是被首先解除阻塞。</span><br><span class="line">               </span><br><span class="line">&lt;2&gt;.调度参数：</span><br><span class="line">       </span><br><span class="line">        函数pthread_attr_getschedparam 和pthread_attr_setschedparam分别</span><br><span class="line">        用来设置和得到线程的调度参数。</span><br><span class="line">  </span><br><span class="line">        <span class="type">int</span> <span class="title function_">pthread_attr_getschedparam</span><span class="params">(<span class="type">const</span> <span class="type">pthread_attr_t</span> *,<span class="keyword">struct</span></span></span><br><span class="line"><span class="params">        sched_param *)</span>;</span><br><span class="line">        <span class="type">int</span> <span class="title function_">pthread_attr_setschedparam</span><span class="params">(<span class="type">pthread_attr_t</span> *,<span class="type">const</span> <span class="keyword">struct</span></span></span><br><span class="line"><span class="params">        sched_param *)</span>;</span><br><span class="line">        参数：</span><br><span class="line">                attr            线程变量属性</span><br><span class="line">                param        sched_parm 结构体</span><br><span class="line">        若成功返回<span class="number">0</span>，若失败返回<span class="number">-1</span>。</span><br><span class="line">       </span><br><span class="line">        /usr/include /bits/sched.h</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">sched_param</span></span></span><br><span class="line"><span class="class">        &#123;</span></span><br><span class="line">               <span class="type">int</span> sched_priority;    <span class="comment">//!&gt; 参数的本质就是优先级</span></span><br><span class="line">        &#125;;</span><br><span class="line">        注意：大的权值对应高的优先级!</span><br><span class="line">        系统支持的最大和最小的优先级值可以用函数：</span><br><span class="line">        sched_get_priority_max和sched_get_priority_min得到！</span><br><span class="line">       </span><br><span class="line">        <span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line">        <span class="type">int</span> <span class="title function_">sched_get_priority_max</span><span class="params">( <span class="type">int</span> policy )</span>;</span><br><span class="line">        <span class="type">int</span> <span class="title function_">sched_get_priority_min</span><span class="params">( <span class="type">int</span> policy )</span>;</span><br><span class="line">        参数：max_：    系统支持的优先级的最小值</span><br><span class="line">                min_ ：    系统支持的优先级的最大值</span><br><span class="line">       </span><br><span class="line">        使用：max_ = sched_get_priority_max( policy );</span><br><span class="line">                min_ = sched_get_priority_min( policy );</span><br><span class="line">                注意参数是policy调用策略，也就是说对于不同的策略的值是不</span><br><span class="line">                一样的！</span><br><span class="line">   </span><br><span class="line">       </span><br><span class="line">        policy = SCHED_OTHER</span><br><span class="line">        max_priority = <span class="number">0</span></span><br><span class="line">        min_priority = <span class="number">0</span></span><br><span class="line">  </span><br><span class="line">        Show SCHED_FIFO of priority</span><br><span class="line">        max_priority = <span class="number">99</span></span><br><span class="line">        min_priority = <span class="number">1</span></span><br><span class="line">       </span><br><span class="line">        Show SCHED_RR of priority</span><br><span class="line">        max_priority = <span class="number">99</span></span><br><span class="line">        min_priority = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>调度策略可以分为两种</p>
+<ul>
+<li><p>normal scheduling：对应的调度策略schedpolicy的取值为<code>SCHED_OTHER	SCHED_IDLE	SCHED_TATCH</code>，此状态下对应的优先级schedparam均为0</p>
+</li>
+<li><p>real scheduling：对应的调度策略schedpolicy取值为<code>SCHED_FIFO	SCHED_RR</code>，此状态下对应的优先级schedparam位于 1 - 99之间，数值越低意味着优先级越低</p>
+</li>
+</ul>
+<p>我们自己创建进程的调度策略大多均为<code>SCHED_OTHER</code>模式，这种也遵循时间片轮转的策略，但要注意它位于normal，一旦由real sheduling的进程normal sheduling要让出CPU</p>
+<p>在linux终端中查看进程的优先级</p>
+<p>方法一：</p>
+<blockquote>
+<p>top命令，注意观察 PR 和 NI(nice)友好值</p>
+<p>PR值越小所代表的优先级越高(与线程属性中的优先级相反)，NI的取值范围(-20，19)，当取值为 0 意味着这是一个普通线程，PR &#x3D; 20 + NI(PR值在normal进程中范围为(0 , 39)，NI值仅对normal有效)，当PR值为负数或者rt)时，意味着该线程为实时线程。对于real scheduling 线程 PR &#x3D; -1 - priority_value(优先级)</p>
+</blockquote>
+<p>方法二：</p>
+<blockquote>
+<p>chrt命令 -p + pid</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">:/mnt/c/Users/satellite<span class="variable">$sudo</span> chrt -p 7</span></span><br><span class="line">pid 7&#x27;s current scheduling policy: SCHED_OTHER</span><br><span class="line">pid 7&#x27;s current scheduling priority: 0     //优先级</span><br></pre></td></tr></table></figure>
+
+<p>chrt命令也可以用来设置调度策略</p>
+</blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1bf4y147PZ">https://www.bilibili.com/video/BV1bf4y147PZ</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/7bf93be5a1b0">https://www.jianshu.com/p/7bf93be5a1b0</a></p>
+</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/tags/">tags</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li>
+         
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#CPU-Scheduling"><span class="toc-number">1.</span> <span class="toc-text">CPU Scheduling</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU%E8%B0%83%E5%BA%A6%E7%A8%8B%E5%BA%8F"><span class="toc-number">1.1.</span> <span class="toc-text">CPU调度程序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%EF%BC%9A"><span class="toc-number">1.1.1.</span> <span class="toc-text">基本概念：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CPU%E8%B0%83%E5%BA%A6%E7%A8%8B%E5%BA%8F-1"><span class="toc-number">1.1.2.</span> <span class="toc-text">CPU调度程序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU%E8%B0%83%E5%BA%A6%E5%87%86%E5%88%99"><span class="toc-number">1.2.</span> <span class="toc-text">CPU调度准则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95%E7%9A%84%E8%A1%A1%E9%87%8F"><span class="toc-number">1.2.1.</span> <span class="toc-text">调度算法的衡量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">调度算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%88%E6%9D%A5%E5%85%88%E6%9C%8D%E5%8A%A1-FCFS%EF%BC%89"><span class="toc-number">1.3.1.</span> <span class="toc-text">先来先服务(FCFS）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E7%89%87%E8%BD%AE%E8%BD%AC-ROUND-ROBIN"><span class="toc-number">1.3.2.</span> <span class="toc-text">时间片轮转(ROUND ROBIN)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E7%9F%AD%E4%BD%9C%E4%B8%9A%E4%BC%98%E5%85%88-SJF"><span class="toc-number">1.3.3.</span> <span class="toc-text">最短作业优先(SJF)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E8%B0%83%E5%BA%A6-PRIORITY"><span class="toc-number">1.3.4.</span> <span class="toc-text">优先级调度(PRIORITY)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E8%B0%83%E5%BA%A6-PRIORITY-1"><span class="toc-number">1.3.5.</span> <span class="toc-text">优先级调度(PRIORITY)</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/05/09/5.CPU%20scheduling/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/05/09/5.CPU%20scheduling/&text=CPU Scheduling"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/05/09/5.CPU%20scheduling/&title=CPU Scheduling"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/05/09/5.CPU%20scheduling/&is_video=false&description=CPU Scheduling"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CPU Scheduling&body=Check out this article: http://example.com/2023/05/09/5.CPU%20scheduling/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/05/09/5.CPU%20scheduling/&title=CPU Scheduling"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/05/09/5.CPU%20scheduling/&title=CPU Scheduling"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/05/09/5.CPU%20scheduling/&title=CPU Scheduling"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/05/09/5.CPU%20scheduling/&title=CPU Scheduling"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/05/09/5.CPU%20scheduling/&name=CPU Scheduling&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/05/09/5.CPU%20scheduling/&t=CPU Scheduling"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2023
+    boolsatellite
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SPWV8NBZ00"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-SPWV8NBZ00');
+    </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

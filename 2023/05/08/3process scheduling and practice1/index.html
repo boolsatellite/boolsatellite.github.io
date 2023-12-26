@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="process scheduling进程切换中断源 外中断：来自处理器之外的硬件中断信号 如时钟中断、键盘中断、外围设备中断 外部中断均是异步中断，所谓的异步就是随机   内中断（异常 Exception）：来自于处理器内部，指令执行过程中发生的中断，属同步中断 硬件异常：掉电、奇偶校验错误等 程序异常：非法操作、地址越界、断点、除数为0  系统调用    由于系统调用是内中断所以系统调用存在陷阱">
+<meta property="og:type" content="article">
+<meta property="og:title" content="process scheduling">
+<meta property="og:url" content="http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/index.html">
+<meta property="og:site_name" content="boolsatellite">
+<meta property="og:description" content="process scheduling进程切换中断源 外中断：来自处理器之外的硬件中断信号 如时钟中断、键盘中断、外围设备中断 外部中断均是异步中断，所谓的异步就是随机   内中断（异常 Exception）：来自于处理器内部，指令执行过程中发生的中断，属同步中断 硬件异常：掉电、奇偶校验错误等 程序异常：非法操作、地址越界、断点、除数为0  系统调用    由于系统调用是内中断所以系统调用存在陷阱">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-07_21-34-47.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-07_22-06-12.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-08_09-08-00.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-08_09-12-24.png">
+<meta property="og:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-08_09-20-42.png">
+<meta property="article:published_time" content="2023-05-08T01:48:48.910Z">
+<meta property="article:modified_time" content="2023-05-17T07:45:24.041Z">
+<meta property="article:author" content="boolsatellite">
+<meta property="article:tag" content="oprating system">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/oprating_system/Snipaste_2023-05-07_21-34-47.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>process scheduling</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="boolsatellite" type="application/atom+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/05/08/4.thread/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/05/07/2.process%20concept/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&text=process scheduling"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&title=process scheduling"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&is_video=false&description=process scheduling"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=process scheduling&body=Check out this article: http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&title=process scheduling"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&title=process scheduling"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&title=process scheduling"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&title=process scheduling"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&name=process scheduling&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&t=process scheduling"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#process-scheduling"><span class="toc-number">1.</span> <span class="toc-text">process scheduling</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%88%87%E6%8D%A2"><span class="toc-number">1.1.</span> <span class="toc-text">进程切换</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E6%BA%90"><span class="toc-number">1.1.1.</span> <span class="toc-text">中断源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86%E8%BF%87%E7%A8%8B"><span class="toc-number">1.1.2.</span> <span class="toc-text">中断处理过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E6%9D%83%E6%8C%87%E4%BB%A4%E5%92%8C%E9%9D%9E%E7%89%B9%E6%9D%83%E6%8C%87%E4%BB%A4"><span class="toc-number">1.1.3.</span> <span class="toc-text">特权指令和非特权指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2"><span class="toc-number">1.1.4.</span> <span class="toc-text">模式切换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%88%87%E6%8D%A2-1"><span class="toc-number">1.1.5.</span> <span class="toc-text">进程切换</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text">进程控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%9C%A8%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98"><span class="toc-number">1.2.1.</span> <span class="toc-text">进程在物理内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E9%98%9F%E5%88%97"><span class="toc-number">1.2.2.</span> <span class="toc-text">进程队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6-process-sheduling"><span class="toc-number">1.2.3.</span> <span class="toc-text">进程调度(process sheduling)</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        process scheduling
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">boolsatellite</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-05-08T01:48:48.910Z" itemprop="datePublished">2023-05-08</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/oprating-system/" rel="tag">oprating system</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="process-scheduling"><a href="#process-scheduling" class="headerlink" title="process scheduling"></a>process scheduling</h1><h2 id="进程切换"><a href="#进程切换" class="headerlink" title="进程切换"></a>进程切换</h2><h3 id="中断源"><a href="#中断源" class="headerlink" title="中断源"></a>中断源</h3><ul>
+<li>外中断：来自处理器之外的硬件中断信号<ul>
+<li>如时钟中断、键盘中断、外围设备中断</li>
+<li><strong>外部中断均是异步中断</strong>，所谓的异步就是随机</li>
+</ul>
+</li>
+<li>内中断（异常 Exception）：来自于处理器内部，指令执行过程中发生的中断，<strong>属同步中断</strong><ul>
+<li>硬件异常：掉电、奇偶校验错误等</li>
+<li>程序异常：非法操作、地址越界、断点、除数为0 </li>
+<li>系统调用</li>
+</ul>
+</li>
+</ul>
+<p><strong>由于系统调用是内中断所以系统调用存在陷阱机制(这才是系统调用陷阱机制的原因)</strong></p>
+<p>外中断是不可预测的是随机的。但是内中断(异常)的发生均是在预定指令的执行过程中发生的，所以异常属于同步中断</p>
+<h3 id="中断处理过程"><a href="#中断处理过程" class="headerlink" title="中断处理过程"></a>中断处理过程</h3><p>在详细的说一遍中断的过程：</p>
+<p><img src="/img/oprating_system/Snipaste_2023-05-07_21-34-47.png"></p>
+<blockquote>
+<ol>
+<li>程序在用户态执行时由于自身原因遇到了异常或由于外部时间导致程序产出中断</li>
+<li>save the context(上下文) of the executing process，如当前寄存器状态，cpu时间片使用</li>
+<li>陷入内核态，determine(确认) the cause of exception or interrupt，Handle the exception &#x2F; interrupt</li>
+<li>select a process to restore and resume(复原)  选择要恢复的进程<br>restore the context of the selected process   恢复所选择进程的上下文<br>resume execution of the selected process     恢复所选择进程的执行</li>
+</ol>
+</blockquote>
+<h3 id="特权指令和非特权指令"><a href="#特权指令和非特权指令" class="headerlink" title="特权指令和非特权指令"></a>特权指令和非特权指令</h3><ul>
+<li>Privileged(特权) Instructions : The Instructions that can run only in Kernel Mode are called  Privileged Instructions .<ul>
+<li>I&#x2F;O instructions and Halt(停顿&#x2F;暂定) instructions </li>
+<li>Turn off all Interrupts    关闭所有中断</li>
+<li>set the Timer(定时器)</li>
+<li>process switching(切换)</li>
+</ul>
+</li>
+<li>Non-Privileged Instructions : The Instructions that can run only in User Mode are called Non-Privileged Instructions</li>
+</ul>
+<h3 id="模式切换"><a href="#模式切换" class="headerlink" title="模式切换"></a>模式切换</h3><p><strong>中断是用户态向核心态转换的唯一途径！系统调用 实质上也是一种中断</strong></p>
+<p>OS提供<code>Load PSW</code>指令装载用户进程返回用户状态</p>
+<p><img src="/img/oprating_system/Snipaste_2023-05-07_22-06-12.png"></p>
+<h3 id="进程切换-1"><a href="#进程切换-1" class="headerlink" title="进程切换"></a>进程切换</h3><ul>
+<li><p>切换时机</p>
+<ul>
+<li><p>进程需要进入等待状态，主动离开CPU可能因为执行 IO 操作</p>
+</li>
+<li><p>进程被抢占CPU而进入就绪状态，被动离开可能因为时间片切换</p>
+<blockquote>
+<p>进程切换一定发生在中断&#x2F;异常&#x2F;系统调用处理过程中，常见的有以下情况：</p>
+<ul>
+<li>时间片<strong>中断</strong>、IO<strong>中断</strong>后 更改优先级进程；（导致被中断进程进入<strong>就绪态</strong>）；</li>
+<li>阻塞式<strong>系统调用</strong>、<strong>虚拟地址异常</strong>；（导致被中断进程进入<strong>等待态</strong>）</li>
+<li>终止用<strong>系统调用</strong>、<strong>不能继续执行的异常</strong>；（导致被中断进程进入<strong>终止态</strong>）</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>切换过程</p>
+<ul>
+<li>由用户态切换到内核态，之后的切换工作均在内核态完成</li>
+<li>保存被中断进程的上下文信息（Context)</li>
+<li>修改被中断进程的控制信息（如状态等）</li>
+<li>将被中断的进程加入相应的状态队列 ，若为等待状态则进入等待状态的队列</li>
+<li>调度一个新的进程并恢复它的上下文信息</li>
+</ul>
+</li>
+</ul>
+<h2 id="进程控制"><a href="#进程控制" class="headerlink" title="进程控制"></a>进程控制</h2><p>A Process Control Block（PCB）contains many  pieces of information associated(与……有关) with a specific(特定的)  process.</p>
+<p>每个进程中都有一个PCB控制块</p>
+<p>PCB进程控制块中包含了</p>
+<blockquote>
+<p>process state：进程状态，如就绪，等待，运行</p>
+<p>process num：进程号 pid</p>
+<p>programe counter</p>
+<p>registers：寄存器的值</p>
+<p>memory limits：内存信息，如：加载地址，最大上限，虚拟地址</p>
+<p>list of open file：进程所打开的文件描述符</p>
+<p>等一系列信息</p>
+</blockquote>
+<h3 id="进程在物理内存"><a href="#进程在物理内存" class="headerlink" title="进程在物理内存"></a>进程在物理内存</h3><p>存放方式如图：</p>
+<p><img src="/img/oprating_system/Snipaste_2023-05-08_09-08-00.png"></p>
+<p>进程实际在物理内存中并不是连续存放的，而是离散的</p>
+<h3 id="进程队列"><a href="#进程队列" class="headerlink" title="进程队列"></a>进程队列</h3><p><img src="/img/oprating_system/Snipaste_2023-05-08_09-12-24.png"></p>
+<p>如图，第一个队列为就绪队列，其余均为等待队列。等待队列有多个是因为针对不同的IO设备存在对应个数的等待对垒。没有运行队列的原因，对于单处理器来说哦同一时间只有一个进程可以运行。</p>
+<p>注意进程队列中存放的是对于进程的PCB信息而非进程的全部信息，因为PCB足以描述进程切换所用到的信息</p>
+<h3 id="进程调度-process-sheduling"><a href="#进程调度-process-sheduling" class="headerlink" title="进程调度(process sheduling)"></a>进程调度(process sheduling)</h3><p>进程在整个生命周期中会在各个调度队列中迁移， 由操作系统的一个调度器（scheduler）来执行。</p>
+<p><img src="/img/oprating_system/Snipaste_2023-05-08_09-20-42.png"></p>
+<p>如图：显示了进程调度中可能的情况，从等待状态 - &gt; 就绪状态 - &gt; 运行状态 ， 这个迁移过程是由 scheduler 完成的</p>
+<p>由于学过linux系统编程了实验二就是fork函数的使用，我就没有做</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/tags/">tags</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li>
+         
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#process-scheduling"><span class="toc-number">1.</span> <span class="toc-text">process scheduling</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%88%87%E6%8D%A2"><span class="toc-number">1.1.</span> <span class="toc-text">进程切换</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E6%BA%90"><span class="toc-number">1.1.1.</span> <span class="toc-text">中断源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86%E8%BF%87%E7%A8%8B"><span class="toc-number">1.1.2.</span> <span class="toc-text">中断处理过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E6%9D%83%E6%8C%87%E4%BB%A4%E5%92%8C%E9%9D%9E%E7%89%B9%E6%9D%83%E6%8C%87%E4%BB%A4"><span class="toc-number">1.1.3.</span> <span class="toc-text">特权指令和非特权指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2"><span class="toc-number">1.1.4.</span> <span class="toc-text">模式切换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%88%87%E6%8D%A2-1"><span class="toc-number">1.1.5.</span> <span class="toc-text">进程切换</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text">进程控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%9C%A8%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98"><span class="toc-number">1.2.1.</span> <span class="toc-text">进程在物理内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E9%98%9F%E5%88%97"><span class="toc-number">1.2.2.</span> <span class="toc-text">进程队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6-process-sheduling"><span class="toc-number">1.2.3.</span> <span class="toc-text">进程调度(process sheduling)</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&text=process scheduling"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&title=process scheduling"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&is_video=false&description=process scheduling"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=process scheduling&body=Check out this article: http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&title=process scheduling"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&title=process scheduling"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&title=process scheduling"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&title=process scheduling"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&name=process scheduling&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/&t=process scheduling"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2023
+    boolsatellite
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SPWV8NBZ00"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-SPWV8NBZ00');
+    </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

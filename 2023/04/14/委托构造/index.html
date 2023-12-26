@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="委托构造委托构造函数是c++11对C++的构造函数的一项改进，其目的也是为了减少程序员书写构造函数的时间 先来看下构造函数的冗余： 1234567891011class Info&amp;#123;public:Info():type(1),name(&amp;#x27;a&amp;#x27;)&amp;#123;InitRest();&amp;#125;Info(int i):type(i),name(&amp;#x27;a&amp;#x27;)&amp;#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="委托构造">
+<meta property="og:url" content="http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/index.html">
+<meta property="og:site_name" content="boolsatellite">
+<meta property="og:description" content="委托构造委托构造函数是c++11对C++的构造函数的一项改进，其目的也是为了减少程序员书写构造函数的时间 先来看下构造函数的冗余： 1234567891011class Info&amp;#123;public:Info():type(1),name(&amp;#x27;a&amp;#x27;)&amp;#123;InitRest();&amp;#125;Info(int i):type(i),name(&amp;#x27;a&amp;#x27;)&amp;#">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-04-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-04-14T14:43:32.000Z">
+<meta property="article:author" content="boolsatellite">
+<meta property="article:tag" content="c++11">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>委托构造</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="boolsatellite" type="application/atom+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/04/17/%E5%8F%B3%E5%80%BC%E3%80%81%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8%E3%80%81%E5%AE%8C%E7%BE%8E%E8%BD%AC%E5%8F%91/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/04/11/%E5%A4%96%E9%83%A8%E6%A8%A1%E6%9D%BF/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&text=委托构造"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&title=委托构造"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&is_video=false&description=委托构造"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=委托构造&body=Check out this article: http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&title=委托构造"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&title=委托构造"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&title=委托构造"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&title=委托构造"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&name=委托构造&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&t=委托构造"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0"><span class="toc-number">1.</span> <span class="toc-text">委托构造</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        委托构造
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">boolsatellite</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-04-13T16:00:00.000Z" itemprop="datePublished">2023-04-14</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/c-11/" rel="tag">c++11</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="委托构造"><a href="#委托构造" class="headerlink" title="委托构造"></a>委托构造</h1><p>委托构造函数是c++11对C++的构造函数的一项改进，其目的也是为了减少程序员书写构造函数的时间</p>
+<p>先来看下构造函数的冗余：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Info</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"><span class="built_in">Info</span>():<span class="built_in">type</span>(<span class="number">1</span>),<span class="built_in">name</span>(<span class="string">&#x27;a&#x27;</span>)&#123;<span class="built_in">InitRest</span>();&#125;</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">int</span> i):<span class="built_in">type</span>(i),<span class="built_in">name</span>(<span class="string">&#x27;a&#x27;</span>)&#123;<span class="built_in">InitRest</span>();&#125;</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">char</span> e):<span class="built_in">type</span>(<span class="number">1</span>),<span class="built_in">name</span>(e)&#123;<span class="built_in">InitRest</span>();&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">InitRest</span><span class="params">()</span></span>&#123;<span class="comment">/*其他初始化*/</span>&#125;</span><br><span class="line"><span class="type">int</span> type;</span><br><span class="line"><span class="type">char</span> name;</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>可以使用c++11中提供的默认参数来进行改进</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Info</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"><span class="built_in">Info</span>()&#123;<span class="built_in">InitRest</span>();&#125;</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">int</span> i):<span class="built_in">type</span>(i) &#123;<span class="built_in">InitRest</span>();&#125;</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">char</span> e):<span class="built_in">name</span>(e)&#123;<span class="built_in">InitRest</span>();&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">InitRest</span><span class="params">()</span></span>&#123;<span class="comment">/*其他初始化*/</span>&#125;</span><br><span class="line"><span class="type">int</span> type = <span class="number">1</span>;</span><br><span class="line"><span class="type">char</span> name = <span class="string">&#x27;a&#x27;</span>;</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这样确实简单了不少，但是每个构造函数中共还需要调用InitRest函数用于初始化其他，我们可以进行改进</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">但前提是我们能够将一个构造函数设定为“基准版</span></span><br><span class="line"><span class="comment">本”，比如本例中Info()版本的构造函数，而其他构造函数可以通过委</span></span><br><span class="line"><span class="comment">派“基准版本”来进行初始化</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="built_in">Info</span>() &#123;<span class="built_in">InitRest</span>();&#125;</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">int</span> i) &#123;<span class="keyword">this</span>-&gt;<span class="built_in">Info</span>():type=i&#125;</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">char</span> e)&#123;<span class="keyword">this</span>-＞<span class="built_in">Info</span>();name=e;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这可能不会通过编译，因为编译器不允许在构造函数中调用构造函数，但是可以使用<strong>定位new</strong>的方法</p>
+<p>定位new</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span>(起始地址) 类型(参数);  <span class="comment">//返回构造对象的起始地址</span></span><br></pre></td></tr></table></figure>
+
+<p>可以进行如下调用：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Info</span>()&#123;<span class="built_in">InitRest</span>();&#125;</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">int</span> i)&#123;<span class="keyword">new</span>(<span class="keyword">this</span>)<span class="built_in">Info</span>();type=i;&#125;</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">char</span> e)&#123;<span class="keyword">new</span>(<span class="keyword">this</span>)<span class="built_in">Info</span>();name=e;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用定位new在本对象的地址上调用类的无参构造函数，虽然这绕过了编译器的检查但是在已经初始化一部分的对象上再次调用构造函数是危险的，c++11提供了<strong>委托构造</strong>来完成上述希望完成的事情，<strong>委托构造函数与目标构造函数使用同一块内存</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Info</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"><span class="built_in">Info</span>()&#123;<span class="built_in">InitRest</span>();&#125;   			<span class="comment">//基准版本的构造函数</span></span><br><span class="line"><span class="built_in">Info</span>(<span class="type">int</span> i):<span class="built_in">Info</span>()&#123;type=i;&#125;  	 <span class="comment">//在初始化列表中委托构造函数完成一部分初始化工作</span></span><br><span class="line"><span class="built_in">Info</span>(<span class="type">char</span> e):<span class="built_in">Info</span>()&#123;name=e;&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">InitRest</span><span class="params">()</span></span>&#123;<span class="comment">/*其他初始化*/</span>&#125;</span><br><span class="line"><span class="type">int</span> type&#123;<span class="number">1</span>&#125;;</span><br><span class="line"><span class="type">char</span> name&#123;<span class="string">&#x27;a&#x27;</span>&#125;;</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>委派构造函数<strong>只能在函数体中</strong>为type、 name等成员赋初值，这是由于委派构造函数不能有初始化列表造成的。在C++中，<strong>构造函数不能同时“委派”和使用初始化列表</strong>，所以如 果委派构造函数要给变量赋初值，初始化代码必须放在函数体中</p>
+<p>如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Rule1</span>&#123;</span><br><span class="line"><span class="type">int</span> i;</span><br><span class="line"><span class="built_in">Rule1</span>(<span class="type">int</span> a):<span class="built_in">i</span>(a)&#123;&#125;</span><br><span class="line"><span class="built_in">Rule1</span>():<span class="built_in">Rule1</span>(<span class="number">40</span>),<span class="built_in">i</span>(<span class="number">1</span>)&#123;&#125;<span class="comment">//无法通过编译,即使用委托构造，又使用初始化列表</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>是无法通过编译的</p>
+<p>可能遇到的问题：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Info</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"><span class="built_in">Info</span>()&#123;<span class="built_in">InitRest</span>();&#125;   			<span class="comment">//基准版本的构造函数</span></span><br><span class="line"><span class="built_in">Info</span>(<span class="type">int</span> i):<span class="built_in">Info</span>()&#123;type=i;&#125;  	 <span class="comment">//在初始化列表中委托构造函数完成一部分初始化工作</span></span><br><span class="line"><span class="built_in">Info</span>(<span class="type">char</span> e):<span class="built_in">Info</span>()&#123;name=e;&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">InitRest</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	type++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> type&#123;<span class="number">1</span>&#125;;</span><br><span class="line"><span class="type">char</span> name&#123;<span class="string">&#x27;a&#x27;</span>&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function">Info <span class="title">f</span><span class="params">(<span class="number">3</span>)</span></span>;</span><br><span class="line">    <span class="comment">//初始化完成后 type 为 3</span></span><br><span class="line">    <span class="comment">// Info(3) -&gt; Info() -&gt; InitBest() 执行 type++ -&gt; 执行 type = i	 </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是不符合预期的，改进方法(将InitRest中的代码放入委托构造函数中)：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Info</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"><span class="built_in">Info</span>():<span class="built_in">Info</span>(<span class="number">1</span>,<span class="string">&#x27;a&#x27;</span>)&#123;&#125;</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">int</span> i):<span class="built_in">Info</span>(i,<span class="string">&#x27;a&#x27;</span>)&#123;&#125;</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">char</span> e):<span class="built_in">Info</span>(<span class="number">1</span>,e)&#123;&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">int</span> i,<span class="type">char</span> e):<span class="built_in">type</span>(i),<span class="built_in">name</span>(e)</span><br><span class="line">&#123;</span><br><span class="line">	type++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> type;</span><br><span class="line"><span class="type">char</span> name;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">Info</span>(<span class="number">3</span>);</span><br><span class="line">    <span class="comment">//Info(int) -&gt; Info(int i,char e)完成初始化和type++</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>避免目标构造函数和委托 构造函数体中初始化同样的成员通常是必要的，否则则可能发生代码逻辑错误</strong></p>
+<p>当在构造函数较多时，可能拥有不止一个委托构造函数，并且一些目标构造函数可能也是委托构造函数，这样就可能在链状委托构造关系</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Info</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"><span class="built_in">Info</span>():<span class="built_in">Info</span>(<span class="number">1</span>)&#123;&#125;<span class="comment">//委派构造函数</span></span><br><span class="line"><span class="built_in">Info</span>(<span class="type">int</span> i):<span class="built_in">Info</span>(i,<span class="string">&#x27;a&#x27;</span>)&#123;&#125;<span class="comment">//既是目标构造函数，也是委派构造函数</span></span><br><span class="line"><span class="built_in">Info</span>(<span class="type">char</span> e):<span class="built_in">Info</span>(<span class="number">1</span>,e)&#123;&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"><span class="built_in">Info</span>(<span class="type">int</span> i,<span class="type">char</span> e):<span class="built_in">type</span>(i),<span class="built_in">name</span>(e)&#123;<span class="comment">/*其他初始化*/</span>&#125;<span class="comment">//目标构造函数</span></span><br><span class="line"><span class="type">int</span> type;</span><br><span class="line"><span class="type">char</span> name;</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>如上代码是没有问题的，但是在写链式委托时，要注意<strong>防止形成委托环的出现</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Rule2</span>&#123;</span><br><span class="line"><span class="type">int</span> i,c;</span><br><span class="line"><span class="built_in">Rule2</span>():<span class="built_in">Rule2</span>(<span class="number">2</span>)&#123;&#125;</span><br><span class="line"><span class="built_in">Rule2</span>(<span class="type">int</span> i):<span class="built_in">Rule2</span>(<span class="string">&#x27;c&#x27;</span>)&#123;&#125;</span><br><span class="line"><span class="built_in">Rule2</span>(<span class="type">char</span> c):<span class="built_in">Rule2</span>(<span class="number">2</span>)&#123;&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Rule()，Rule(int)，Rule(char) 相互依赖形成了委托环，这样代码通常不会通过编译</p>
+<p>模板做委托构造函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;list&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;deque&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TDConstructed</span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt; <span class="title">TDConstructed</span><span class="params">(T first,T last)</span> : l(first,last)&#123;</span>&#125;</span><br><span class="line">    <span class="comment">//first 和 last 是模板函数参数，在初始化列表中为 list&lt;int&gt; l</span></span><br><span class="line">    list&lt;<span class="type">int</span>&gt; l;    <span class="comment">//这里使用int是因为 int既可以接受int也可以接受short类型，不会导致溢出</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">TDConstructed</span>(vector&lt;<span class="type">short</span>&gt; &amp;v) : <span class="built_in">TDConstructed</span>(v.<span class="built_in">begin</span>(),v.<span class="built_in">end</span>())&#123;&#125;</span><br><span class="line">    <span class="built_in">TDConstructed</span>(deque&lt;<span class="type">int</span>&gt; &amp;d) : <span class="built_in">TDConstructed</span>(d.<span class="built_in">begin</span>(),d.<span class="built_in">end</span>())&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    vector&lt;<span class="type">short</span>&gt;vi = &#123;<span class="number">1</span>，<span class="number">2</span>，<span class="number">3</span>，<span class="number">4</span>，<span class="number">5</span>，<span class="number">67</span>，<span class="number">8</span>，<span class="number">9</span>，<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="function">TDConstructed <span class="title">t</span><span class="params">(vi)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的委托函数使用了一个模板函数，目标构造函数参数为容器类型，调用委托构造函数时，将模板参数实例化为迭代器类型，在委托构造函数中的初始化列表中完成对链表的初始化即使用迭代器对链表初始化。这样一来，我们的 TDConstructed类就可以很容易地接受多种容器对其进行初始化。这无疑比罗列不同类型的构造函数方便了很多。可以说，委托构造使得构 造函数的泛型编程也成为了一种可能。</p>
+<p>参考：书籍《深入理解c++11》</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/tags/">tags</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li>
+         
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0"><span class="toc-number">1.</span> <span class="toc-text">委托构造</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&text=委托构造"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&title=委托构造"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&is_video=false&description=委托构造"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=委托构造&body=Check out this article: http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&title=委托构造"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&title=委托构造"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&title=委托构造"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&title=委托构造"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&name=委托构造&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/04/14/%E5%A7%94%E6%89%98%E6%9E%84%E9%80%A0/&t=委托构造"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2023
+    boolsatellite
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SPWV8NBZ00"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-SPWV8NBZ00');
+    </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
