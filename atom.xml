@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2023-12-04T14:17:31.024Z</updated>
+  <updated>2024-01-04T13:58:51.862Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>dpdk环境搭建</title>
+    <link href="http://example.com/2024/01/04/1.%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
+    <id>http://example.com/2024/01/04/1.%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</id>
+    <published>2024-01-03T16:00:00.000Z</published>
+    <updated>2024-01-04T13:58:51.862Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="dpdk环境搭建"><a href="#dpdk环境搭建" class="headerlink" title="dpdk环境搭建"></a>dpdk环境搭建</h1><ol><li><p>将虚拟机对应虚拟网卡驱动设置为 <code> vmxnet3</code><br>因为vmxnet3是支持多队列的网卡,多队列网卡意味着，可以出发cpu的多个中断</p></li><li><p>修改网卡名：</p></li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/default/grub</span><br><span class="line">将GRUB_CMDLINE_LINUX修改为：</span><br><span class="line">GRUB_CMDLINE_LINUX=&quot;net.ifnames=0 biosdevname=0&quot; </span><br></pre></td></tr></table></figure><p>重建grub配置文件<br>执行命令：<code>sudo grub-mkconfig -o /boot//grub/g</code>rub.cfg</p><p>重启后网卡名就修改好了 如 eth0</p><ol start="3"><li>网络配置文件： &#x2F;etc&#x2F;network&#x2F;interfaces，使对应网卡采用dhcp自动获取ip</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">The loopback network interface</span></span><br><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">The primary network interface</span></span><br><span class="line">auto eth0</span><br><span class="line">iface etho inet dhcp</span><br><span class="line"></span><br><span class="line">auto eth1</span><br><span class="line">iface eth1 inet dhcp</span><br><span class="line"></span><br><span class="line">auto eth2</span><br><span class="line">iface eth2 inet dhcp</span><br></pre></td></tr></table></figure><ol start="4"><li><p>添加网卡，但是在ifconfig时，发现无eth0，执行 <code>ifconfig eth0 up</code>此时 eth0 被开启，但是无 <code>ip </code>被分配，执行 <code>dhclient eth0</code> 为<code>eth0</code> 分配ip</p></li><li><p>在启动参数内添加巨页信息：</p></li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">default_hugepages=1G hugepagesz=2M hugepages=1024 isolcpus=0-2</span><br></pre></td></tr></table></figure><p>重建grub配置文件<br>执行命令：<code>sudo grub-mkconfig -o /boot//grub/grub.cfg</code></p><ol start="6"><li>查看是否支持多队列网卡</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/interrupts存在如下内容</span><br><span class="line"></span><br><span class="line">  56:        114       1015   PCI-MSI 1114112-edge      0000:02:04.0</span><br><span class="line">  57:          2        258   PCI-MSI 1572864-edge      eth0-rxtx-0</span><br><span class="line">  58:          5          0   PCI-MSI 1572865-edge      eth0-rxtx-1</span><br><span class="line">  59:          0          0   PCI-MSI 1572866-edge      eth0-event-2</span><br><span class="line">  60:          5        305   PCI-MSI 5767168-edge      eth1-rxtx-0</span><br><span class="line">  61:          8          9   PCI-MSI 5767169-edge      eth1-rxtx-1</span><br><span class="line">  62:          0          0   PCI-MSI 5767170-edge      eth1-event-2</span><br></pre></td></tr></table></figure><p>可以看到eth0 eth1都是多队列网卡，并且有两个都对应两个中断(因为虚拟机我只分配了2个核心)</p><ol start="7"><li>下载dpdk代码，并设置环境变量<br><code>export RTE_SDK=/home/satellite/share/dpdk-stable-19.08.2</code><br><code> export RTE_TARGET=x86_64-native-linux-gcc</code><br>执行：<code>/usertools/dpdk-setup.sh</code></li></ol><ul><li><p>dhclient命令来自英文词组DHCP client的缩写，其功能是动态获取或释放IP地址。使用dhclient命令前，需要将网卡模式设置成DHCP自动获取，否则静态模式的网卡不会主动向服务器获取如IP地址等网卡信息‍。</p></li><li><p><code>/etc/default/grub</code> 是ubuntu开机引导文件，修改<code> GRUB_CMDLINE_LINUX</code> 就是修改了内核的启动参数</p><p>grup是GNU GRand Unified Bootloader的缩写。GRand代表”Generalized”和”Randomized”。在GRUB的背景中，”GRand”意味着它是一个通用且灵活的引导加载程序，可以适用于各种操作系统和硬件平台。</p></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;dpdk环境搭建&quot;&gt;&lt;a href=&quot;#dpdk环境搭建&quot; class=&quot;headerlink&quot; title=&quot;dpdk环境搭建&quot;&gt;&lt;/a&gt;dpdk环境搭建&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;将虚拟机对应虚拟网卡驱动设置为 &lt;code&gt; vmxnet3&lt;/code&gt;</summary>
+      
+    
+    
+    
+    
+    <category term="dpdk" scheme="http://example.com/tags/dpdk/"/>
+    
+  </entry>
   
   <entry>
     <title>网络协议栈</title>
@@ -437,28 +460,6 @@
       
       
     <summary type="html">&lt;h1 id=&quot;Page-table&quot;&gt;&lt;a href=&quot;#Page-table&quot; class=&quot;headerlink&quot; title=&quot;Page table&quot;&gt;&lt;/a&gt;Page table&lt;/h1&gt;&lt;h2 id=&quot;页表&quot;&gt;&lt;a href=&quot;#页表&quot; class=&quot;headerli</summary>
-      
-    
-    
-    
-    
-    <category term="oprating system" scheme="http://example.com/tags/oprating-system/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Segnation paging</title>
-    <link href="http://example.com/2023/05/13/12.segmation_page/"/>
-    <id>http://example.com/2023/05/13/12.segmation_page/</id>
-    <published>2023-05-13T09:54:04.701Z</published>
-    <updated>2023-05-17T07:46:18.467Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="segmation-paging分段分页"><a href="#segmation-paging分段分页" class="headerlink" title="segmation_paging分段分页"></a>segmation_paging分段分页</h1><h2 id="动机"><a href="#动机" class="headerlink" title="动机"></a>动机</h2><ul><li>Solution to fragmentation(碎片): permit(允许) the logical address  space of processes to be noncontiguous(不连续). <ul><li>The view of memory is different between</li><li>logical (programmer’s ): a variable-sized(可变大小的) segments</li><li>physical : a linear(线性的) array of bytes</li></ul></li><li>The hardware could provide a memory mechanism(机制)  that mapped(映射) the logical view to the actual(实际的) physical  memory.</li></ul><h2 id="分段"><a href="#分段" class="headerlink" title="分段"></a>分段</h2><h3 id="划分段"><a href="#划分段" class="headerlink" title="划分段"></a>划分段</h3><p>将：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">void f()&#123;    //在未划分段时，地址时连续的，从 0 开始直至结束</span><br><span class="line">1.//...... </span><br><span class="line">2.//...... </span><br><span class="line">3.//...... </span><br><span class="line">4.&#125; </span><br><span class="line">5.void g()&#123; </span><br><span class="line">6.//...... </span><br><span class="line">7.//...... </span><br><span class="line">8.&#125; </span><br><span class="line">9.int main()&#123; </span><br><span class="line">10.//...... </span><br><span class="line">11.//...... </span><br><span class="line">12.return 0; </span><br><span class="line">13.&#125;</span><br></pre></td></tr></table></figure><p>划分为：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">0.void f()&#123;    //划分段后每段的起始地址为 0 ，每个段有对应的标号，段与段之间不需要连续</span><br><span class="line">1.//...... </span><br><span class="line">2.//...... </span><br><span class="line">3.//...... </span><br><span class="line">4.&#125;    // #1 表示第一段</span><br><span class="line">0.void g()&#123; </span><br><span class="line">1.//...... </span><br><span class="line">2.//...... </span><br><span class="line">3.&#125;    //#3 表示第三段</span><br><span class="line">0.int main()&#123; </span><br><span class="line">1.//...... </span><br><span class="line">2.//...... </span><br><span class="line">3.return 0;</span><br><span class="line">4.&#125;    //#2 表示第二段</span><br></pre></td></tr></table></figure><p><strong>在分段之后的程序中，访问逻辑地址需要表明段号和偏移</strong></p><p>注意：上述代码前的标号代表指令而非C语言语句</p><p>由于内存被分成了许多段，而且段与段之间并不连续，这就意味着需要一张段表来存放对应的信息用来寻找对应的逻辑地址</p><p>段表：段号，基址，限长</p><p>当拿到一个逻辑地址&lt;段号：偏移&gt;时，首先将段表内相应段号对应的基址值存放到base寄存器中，将对应的段限长存放到limit寄存器中，先执行保护（比较偏移与段限长，若未超过段限长则说明地址有效）后进行转换（物理地址 &#x3D; base + offset）</p><h3 id="逻辑地址-16位段式地址转换实例"><a href="#逻辑地址-16位段式地址转换实例" class="headerlink" title="逻辑地址 16位段式地址转换实例"></a>逻辑地址 16位段式地址转换实例</h3><p><img src="/img/oprating_system/Snipaste_2023-05-12_22-29-16.png"></p><ul><li><p>假设逻辑地址的段号占2bits，段内位移占14bits，此时 PC寄存器的值为0x240</p></li><li><p>下⼀条指令的物理地址为：</p><blockquote><p>PC：0b0000 00,10 0100 0000</p><p>故段号为0</p><p>下一条指令物理地址：0x4000 + 0x240 &#x3D; 0x4240</p></blockquote></li><li><p>Move 0x4050 → $a0, Move PC+4 → PC，下条指令物理地址为：</p><blockquote><p>PC由0x240 变为 0x244：0000 0010 0100 0100</p><p>短号为 0 </p><p>吓一跳物理地址为 0x4000 + 0x244 &#x3D; 0x4244</p></blockquote></li><li><p>Move 0x0248 → $ra (return address!), Move 0x0360 → PC，下条指令物理地址为：</p><blockquote><p>上述汇编指令意味着，将 0x0248存放到ra寄存器中（做函数的返回地址）</p><p>将PC寄存器中的值更新为 0x0360：0000 0011 0110 0000<br>对应短号为 0</p><p>下一条物理地址为：0x4000 + 0x0360 &#x3D; 0x4360</p></blockquote></li><li><p>Move 0x0→$v0, Move PC+4→PC，下条指令物理地址为：0x4364</p></li><li><p>“lb $t0,($a0)”(将a0寄存器中所示内存地址处取出1个字节存到寄存器t0中)，该内存地址为：</p><blockquote><p>a0中存放的值为：0x4040：0b0100 0000 0101 0000</p><p>对应的段为 1</p><p>运行时物理内存为：0x4800 + 0x50 &#x3D; 0x4850</p></blockquote></li></ul><p>分段并没有完全解决外部碎片的问题</p><h2 id="分页"><a href="#分页" class="headerlink" title="分页"></a>分页</h2><h3 id="基本方案"><a href="#基本方案" class="headerlink" title="基本方案"></a>基本方案</h3><p>将内存看作是由若干个相等大小的分区组成，我们称这个分区为帧或页框</p><p>将进程也分为与帧大小相同的若干个，称为页面，只有切割进程的最后一块可能小于页面大小</p><p><img src="/img/oprating_system/Snipaste_2023-05-13_16-30-28.png"></p><p>如图：将内存分为 19 块等大的帧，进程分为 11 块等大的页面，将这 11个等大的页面离散的存放在memory中，当然就需要一张表用于存放帧的使用情况，记录了页面也页框的对应情况这个表被称为页表</p><p><img src="/img/oprating_system/Snipaste_2023-05-13_16-35-17.png"></p><p>分页后指令的逻辑地址将从 0 开始，为了确定物理地址，就必须确定页面号与页内偏移，根据页面号通过查询页表找到对应的页框号，从而确定物理地址</p><p><strong>physical address &#x3D; frame_no * pagesize + offset</strong></p><p>操作系统在进行分页地址转换时，直接将页面号替换为页框号与页内偏移进行拼接即可获得物理地址</p><h3 id="分页硬件"><a href="#分页硬件" class="headerlink" title="分页硬件"></a>分页硬件</h3><p><img src="/img/oprating_system/Snipaste_2023-05-13_17-19-09.png"></p><p>CPU根据逻辑地址&lt;页面号，页偏移&gt;，根据页面号查询页表找到对应的段号，将段号与段偏移拼接，得到物理地址</p><h3 id="LOGICAL-ADDRESS"><a href="#LOGICAL-ADDRESS" class="headerlink" title="LOGICAL ADDRESS"></a>LOGICAL ADDRESS</h3><ul><li>The page size (like the frame size) is defined by the hardware. The size of a  page is a power of 2(2的幂次), varying(更改) between 512 bytes and 1 GB per page,  depending(依赖) on the computer architecture(架构). （大小为2的幂次是为了可以拼接运算，目前大多数计算机采用页面大小为 4k）</li><li>The selection of a power of 2 as a page size makes the translation(转化) of a  logical address into a page number and page offset particularly(特别的) easy.</li><li>If the size of the logical address space is 2m , and a page size is 2n bytes,  then the high-order <code>m − n </code>bits of a logical address designate(指定为) the page  number, and the <code>n</code> low-order bits designate the page offset. Thus, the  logical address is as follows:</li></ul><p><img src="/img/oprating_system/Snipaste_2023-05-13_17-36-17.png"></p><h2 id="分页与分段的区别"><a href="#分页与分段的区别" class="headerlink" title="分页与分段的区别"></a>分页与分段的区别</h2><p><img src="/img/oprating_system/Snipaste_2023-05-13_17-45-49.png"></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h1 id=&quot;segmation-paging分段分页&quot;&gt;&lt;a href=&quot;#segmation-paging分段分页&quot; class=&quot;headerlink&quot; title=&quot;segmation_paging分段分页&quot;&gt;&lt;/a&gt;segmation_paging分段分页&lt;/h1&gt;&lt;</summary>
       
     
     

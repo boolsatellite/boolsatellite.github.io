@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>dpdk环境搭建</title>
+      <link href="/2024/01/04/1.%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
+      <url>/2024/01/04/1.%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</url>
+      
+        <content type="html"><![CDATA[<h1 id="dpdk环境搭建"><a href="#dpdk环境搭建" class="headerlink" title="dpdk环境搭建"></a>dpdk环境搭建</h1><ol><li><p>将虚拟机对应虚拟网卡驱动设置为 <code> vmxnet3</code><br>因为vmxnet3是支持多队列的网卡,多队列网卡意味着，可以出发cpu的多个中断</p></li><li><p>修改网卡名：</p></li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/default/grub</span><br><span class="line">将GRUB_CMDLINE_LINUX修改为：</span><br><span class="line">GRUB_CMDLINE_LINUX=&quot;net.ifnames=0 biosdevname=0&quot; </span><br></pre></td></tr></table></figure><p>重建grub配置文件<br>执行命令：<code>sudo grub-mkconfig -o /boot//grub/g</code>rub.cfg</p><p>重启后网卡名就修改好了 如 eth0</p><ol start="3"><li>网络配置文件： &#x2F;etc&#x2F;network&#x2F;interfaces，使对应网卡采用dhcp自动获取ip</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">The loopback network interface</span></span><br><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">The primary network interface</span></span><br><span class="line">auto eth0</span><br><span class="line">iface etho inet dhcp</span><br><span class="line"></span><br><span class="line">auto eth1</span><br><span class="line">iface eth1 inet dhcp</span><br><span class="line"></span><br><span class="line">auto eth2</span><br><span class="line">iface eth2 inet dhcp</span><br></pre></td></tr></table></figure><ol start="4"><li><p>添加网卡，但是在ifconfig时，发现无eth0，执行 <code>ifconfig eth0 up</code>此时 eth0 被开启，但是无 <code>ip </code>被分配，执行 <code>dhclient eth0</code> 为<code>eth0</code> 分配ip</p></li><li><p>在启动参数内添加巨页信息：</p></li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">default_hugepages=1G hugepagesz=2M hugepages=1024 isolcpus=0-2</span><br></pre></td></tr></table></figure><p>重建grub配置文件<br>执行命令：<code>sudo grub-mkconfig -o /boot//grub/grub.cfg</code></p><ol start="6"><li>查看是否支持多队列网卡</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/interrupts存在如下内容</span><br><span class="line"></span><br><span class="line">  56:        114       1015   PCI-MSI 1114112-edge      0000:02:04.0</span><br><span class="line">  57:          2        258   PCI-MSI 1572864-edge      eth0-rxtx-0</span><br><span class="line">  58:          5          0   PCI-MSI 1572865-edge      eth0-rxtx-1</span><br><span class="line">  59:          0          0   PCI-MSI 1572866-edge      eth0-event-2</span><br><span class="line">  60:          5        305   PCI-MSI 5767168-edge      eth1-rxtx-0</span><br><span class="line">  61:          8          9   PCI-MSI 5767169-edge      eth1-rxtx-1</span><br><span class="line">  62:          0          0   PCI-MSI 5767170-edge      eth1-event-2</span><br></pre></td></tr></table></figure><p>可以看到eth0 eth1都是多队列网卡，并且有两个都对应两个中断(因为虚拟机我只分配了2个核心)</p><ol start="7"><li>下载dpdk代码，并设置环境变量<br><code>export RTE_SDK=/home/satellite/share/dpdk-stable-19.08.2</code><br><code> export RTE_TARGET=x86_64-native-linux-gcc</code><br>执行：<code>/usertools/dpdk-setup.sh</code></li></ol><ul><li><p>dhclient命令来自英文词组DHCP client的缩写，其功能是动态获取或释放IP地址。使用dhclient命令前，需要将网卡模式设置成DHCP自动获取，否则静态模式的网卡不会主动向服务器获取如IP地址等网卡信息‍。</p></li><li><p><code>/etc/default/grub</code> 是ubuntu开机引导文件，修改<code> GRUB_CMDLINE_LINUX</code> 就是修改了内核的启动参数</p><p>grup是GNU GRand Unified Bootloader的缩写。GRand代表”Generalized”和”Randomized”。在GRUB的背景中，”GRand”意味着它是一个通用且灵活的引导加载程序，可以适用于各种操作系统和硬件平台。</p></li></ul>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> dpdk </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>网络协议栈</title>
       <link href="/2023/10/12/6.3%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE%E6%A0%88/"/>
       <url>/2023/10/12/6.3%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE%E6%A0%88/</url>
