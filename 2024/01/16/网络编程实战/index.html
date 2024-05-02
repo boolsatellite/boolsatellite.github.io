@@ -16,7 +16,7 @@
 <meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2023-12-18_22-51-37.png">
 <meta property="og:image" content="http://example.com/.%5Cimg%5CSnipaste_2023-12-27_23-10-09.png">
 <meta property="article:published_time" content="2024-01-15T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-16T16:16:54.623Z">
+<meta property="article:modified_time" content="2024-03-25T05:58:14.046Z">
 <meta property="article:author" content="boolsatellite">
 <meta property="article:tag" content="网络编程">
 <meta name="twitter:card" content="summary">
@@ -306,7 +306,7 @@
 </ul>
 <p>在linux下，如果用边缘触发同时注册了读和写，当读触发的时候，内核向用户返回fd的时候同时会检查fd是否符合可写的条件（有空间容纳待写入的数据），如果满足可写的条件，同时会加上EPOLLOUT标记。</p>
 <h2 id="第三十讲"><a href="#第三十讲" class="headerlink" title="第三十讲"></a>第三十讲</h2><p>无论是阻塞 I&#x2F;O，还是阻塞 I&#x2F;O，和基于非阻塞 I&#x2F;O 的多路复用都是<strong>同步调用技术。为什么这么说呢？因为同步调用、异步调用的说法，是对于获取数据的过程而言的，前面几种最后获取数据的 read 操作调用，都是同步的，在 read 调用时，内核将数据从内核空间拷贝到应用程序空间，这个过程是在 read 函数中同步进行的，如果内核实现的拷贝效率很差，read 调用就会在这个同步过程中消耗比较长的时间</strong></p>
-<p>而真正的异步调用则不用担心这个问题，我们接下来就来介绍第四种 I&#x2F;O 技术，当我们发起 io_using之后，就立即返回，内核自动将数据从内核空间拷贝到应用程序空间，这个拷贝过程是异步的，内核自动完成的，和前面的同步操作不一样，应用程序并不需要主动发起拷贝动作。</p>
+<p>而真正的异步调用则不用担心这个问题，我们接下来就来介绍第四种 I&#x2F;O 技术，当我们发起 io_uring之后，就立即返回，内核自动将数据从内核空间拷贝到应用程序空间，这个拷贝过程是异步的，内核自动完成的，和前面的同步操作不一样，应用程序并不需要主动发起拷贝动作。</p>
 <p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903879688060942">https://juejin.cn/post/6844903879688060942</a>  重置报文</p>
 
   </div>
