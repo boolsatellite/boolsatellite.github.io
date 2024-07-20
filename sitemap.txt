@@ -1,6 +1,7 @@
+http://example.com/2024/07/20/%E5%86%B3%E8%83%9C%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/
+http://example.com/about/index.html
 http://example.com/2024/07/02/10.1%20cas/
 http://example.com/2024/06/29/%E9%87%8D%E8%BD%BD%E4%B8%AD%E7%9A%84%E5%B0%8F%E6%8A%80%E5%B7%A7/
-http://example.com/about/index.html
 http://example.com/2024/05/04/7.7%20%E5%AE%9A%E6%97%B6%E5%99%A8/
 http://example.com/2024/05/02/life%205%E6%9C%882%E6%97%A5%E9%9A%8F%E7%AC%94/
 http://example.com/2024/01/16/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/
@@ -65,4 +66,5 @@ http://example.com/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/
 http://example.com/tags/c-11/
 http://example.com/tags/c-%E5%AD%A6%E4%B9%A0/
 http://example.com/tags/life/
+http://example.com/tags/read/
 http://example.com/tags/bilibili/
