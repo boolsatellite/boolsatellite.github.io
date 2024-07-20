@@ -13,21 +13,21 @@
 <meta property="og:site_name" content="boolsatellite">
 <meta property="og:description" content="序列号回绕我们这里假设只有 8位 用来描述 tcp 的序列号 seq1 &#x3D; 255      seq2 &#x3D; 1 使用减法来判断包的先后顺序 ， 12345static inline bool before(__u32 seq1, __u32 seq2)&amp;#123;        return (__s32)(seq1-seq2) &lt; 0;&amp;#125;#define aft">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2024-07-10_20-12-53.png">
-<meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2024-07-11_11-50-02.png">
-<meta property="og:image" content="http://example.com/..%5Cimg%5CSnipaste_2024-07-11_14-06-37.png">
-<meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2024-07-12_14-06-24.png">
-<meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2024-07-12_14-19-31.png">
-<meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2024-07-12_14-23-25.png">
-<meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2024-07-13_00-01-43.png">
-<meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2024-07-20_14-58-22.png">
+<meta property="og:image" content="http://example.com/img%5CSnipaste_2024-07-10_20-12-53.png">
+<meta property="og:image" content="http://example.com/img%5CSnipaste_2024-07-11_11-50-02.png">
+<meta property="og:image" content="http://example.com/img%5CSnipaste_2024-07-11_14-06-37.png">
+<meta property="og:image" content="http://example.com/img%5CSnipaste_2024-07-12_14-06-24.png">
+<meta property="og:image" content="http://example.com/img%5CSnipaste_2024-07-12_14-19-31.png">
+<meta property="og:image" content="http://example.com/img%5CSnipaste_2024-07-12_14-23-25.png">
+<meta property="og:image" content="http://example.com/img%5CSnipaste_2024-07-13_00-01-43.png">
+<meta property="og:image" content="http://example.com/img%5CSnipaste_2024-07-20_14-58-22.png">
 <meta property="article:published_time" content="2024-07-19T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-07-20T08:54:10.359Z">
+<meta property="article:modified_time" content="2024-07-20T14:43:52.487Z">
 <meta property="article:author" content="boolsatellite">
 <meta property="article:tag" content="网络编程">
 <meta property="article:tag" content="read">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/%5Cimg%5CSnipaste_2024-07-10_20-12-53.png">
+<meta name="twitter:image" content="http://example.com/img%5CSnipaste_2024-07-10_20-12-53.png">
     
     
       
@@ -170,7 +170,7 @@
 
 <p>这里就变为了 before(0b1111 , 0b1) -&gt; return 0b1110 &lt; 0 ， 采用了无符号数减法转化为有符号数来粗略的判断，当seq1 和 seq2之间的间距 大于 0xc000 时就无法判断了，就需要使用额外的东西来判断如时间戳</p>
 <h3 id="窗口缩放"><a href="#窗口缩放" class="headerlink" title="窗口缩放"></a>窗口缩放</h3><p>tcp头部中指定了窗口大小，使用了16位，这意味着最大窗口位 64k，由于现代网络传输速度的加快，64k有时不能满足要求，于是在这上面打了补丁也就有了窗口缩放，用窗口大小乘缩放因子得到时机的窗口大小，缩放因子是在三次握手中协商的，如下报文</p>
-<p><img src="/%5Cimg%5CSnipaste_2024-07-10_20-12-53.png"></p>
+<p><img src="/img%5CSnipaste_2024-07-10_20-12-53.png"></p>
 <p>这里的缩放因子是 256 也就是实际的窗口大小为 516 * 256</p>
 <h4 id="tcp的重要选项"><a href="#tcp的重要选项" class="headerlink" title="tcp的重要选项"></a>tcp的重要选项</h4><p> 在 <code>tcp</code>头部中选项和填充属于可选字段，但也有相当重要的</p>
 <p>MSS: 最大段大小选项 , TCP 允许的从对方接收的最大报文段<br>SACK: 选择确定选项<br>Window Scale: 窗口缩放选项</p>
@@ -187,8 +187,8 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">inet_ehash_bucket</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">hlist_nulls_head</span> <span class="title">chain</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">inet_bind_hashbucket</span> &#123;</span></span><br><span class="line">	<span class="type">spinlock_t</span>		lock;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">hlist_head</span>	<span class="title">chain</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">inet_listen_hashbucket</span> &#123;</span></span><br><span class="line">	<span class="type">spinlock_t</span>		lock;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">hlist_nulls_head</span>	<span class="title">nulls_head</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>bind(0) 分配端口：</p>
-<p><img src="/%5Cimg%5CSnipaste_2024-07-11_11-50-02.png"></p>
-<p><img src="/..%5Cimg%5CSnipaste_2024-07-11_14-06-37.png"></p>
+<p><img src="/img%5CSnipaste_2024-07-11_11-50-02.png"></p>
+<p><img src="/img%5CSnipaste_2024-07-11_14-06-37.png"></p>
 <p>connect 分配端口：</p>
 <p>首先要分配端口，与 bind(0) 不同的是 <code>offset &amp;= ~1</code>，将offset 强制变为偶数之后与low相加检测bhash中是否有相同的 ，之后判断端口是否可用</p>
 <p>对应 bind 端口为 0 时 ，所分配的临时端口是奇数，对应没有 bind 直接 connect ，所分配的端口是偶数</p>
@@ -210,15 +210,15 @@
 <li>凡是消耗序列号的 TCP 报文段，一定需要对端确认。如果这个段没有收到确认，会一直重传直到达到指定的次数为至</li>
 </ul>
 <h3 id="三次握手冷知识"><a href="#三次握手冷知识" class="headerlink" title="三次握手冷知识"></a>三次握手冷知识</h3><p>通信双方都知道对端开发的端口，同时调用 connect ， 发送 syn 包，双方进入 SYN_SEND 状态，接收到对端传来的 SYN 时进入 SYN_REVD ， 发送 SYN ACK ， 进入 ESTABLISH</p>
-<p><img src="/%5Cimg%5CSnipaste_2024-07-12_14-06-24.png"></p>
+<p><img src="/img%5CSnipaste_2024-07-12_14-06-24.png"></p>
 <p>TCP 自连接：</p>
 <p>当我们执行这段脚本：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">while ture</span><br><span class="line">do </span><br><span class="line">	telnet 127.0.0.1 50000</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
 
 <p>过一段时间会出现</p>
-<p><img src="/%5Cimg%5CSnipaste_2024-07-12_14-19-31.png"></p>
+<p><img src="/img%5CSnipaste_2024-07-12_14-19-31.png"></p>
 <p>原理：</p>
-<p><img src="/%5Cimg%5CSnipaste_2024-07-12_14-23-25.png"></p>
+<p><img src="/img%5CSnipaste_2024-07-12_14-23-25.png"></p>
 <p>自连接的危害：</p>
 <p>存在业务系统 B会访问本机服务 A ， 服务A监听了 50000 端口</p>
 <ol>
@@ -228,7 +228,7 @@
 <li>这是服务A想要监听50000断开就会出现断开被占用的情况</li>
 </ol>
 <p>自连接的进程占用了端口，导致真正需要监听端口的服务程序无法正常启动，自连接的进程开启了connect成功了，实际上服务是不正常的，无法正常进行数据通信</p>
-<h3 id="四次挥手中的同时关闭"><a href="#四次挥手中的同时关闭" class="headerlink" title="四次挥手中的同时关闭"></a>四次挥手中的同时关闭</h3><p><img src="/%5Cimg%5CSnipaste_2024-07-13_00-01-43.png"></p>
+<h3 id="四次挥手中的同时关闭"><a href="#四次挥手中的同时关闭" class="headerlink" title="四次挥手中的同时关闭"></a>四次挥手中的同时关闭</h3><p><img src="/img%5CSnipaste_2024-07-13_00-01-43.png"></p>
 <h3 id="两个队列"><a href="#两个队列" class="headerlink" title="两个队列"></a>两个队列</h3><p>半连接队列(Incomplete connection queue), 又称 SYN 队列<br>全连接队列(Completed connection queue), 又称 Accept 队列</p>
 <p>当客户端发起 SYN 到服务端，服务端收到以后会回 ACK 和⾃⼰的 SYN。这时服务端这边的 TCP 从 listen 状态变为 SYN_RCVD (SYN  Received)，此时会将这个连接信息放⼊半连接队列</p>
 <p><code>int listen(int fd , int backlog)</code></p>
@@ -253,7 +253,7 @@
 <p>第⼆步，通信双⽅各⾃初始化⾃⼰的「拥塞窗⼜」 （Congestion Window，cwnd）⼤⼩</p>
 <p>第三步，cwnd 初始值较⼩时，每收到⼀个 ACK， cwnd + 1，每经过⼀个 RTT，cwnd 变为之前的两 倍。</p>
 </blockquote>
-<p><img src="/%5Cimg%5CSnipaste_2024-07-20_14-58-22.png"></p>
+<p><img src="/img%5CSnipaste_2024-07-20_14-58-22.png"></p>
 <p>慢启动拥塞窗口（cwnd）肯定不能⽆⽌境的指数级增长下去，否则拥塞控制就变成了「拥塞失控」了，它的阈值称为「慢启动阈值」（Slow Start  Threshold，ssthresh）。<code>ssthresh</code> 就是⼀道刹车，让拥塞窗⼜别涨那么快</p>
 <ul>
 <li>当 cwnd &lt; ssthresh 时，拥塞窗⼜按指数级增长（慢启动）</li>

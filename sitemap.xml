@@ -547,14 +547,14 @@
   </url>
   
   <url>
-    <loc>http://example.com/tags/dpdk/</loc>
+    <loc>http://example.com/tags/%E4%BB%8E0%E5%88%B01/</loc>
     <lastmod>2024-07-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://example.com/tags/%E4%BB%8E0%E5%88%B01/</loc>
+    <loc>http://example.com/tags/dpdk/</loc>
     <lastmod>2024-07-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
