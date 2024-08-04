@@ -513,14 +513,14 @@
   </url>
   
   <url>
-    <loc>http://example.com/tags/dpdk/</loc>
+    <loc>http://example.com/tags/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/</loc>
     <lastmod>2024-08-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://example.com/tags/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/</loc>
+    <loc>http://example.com/tags/dpdk/</loc>
     <lastmod>2024-08-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -562,14 +562,14 @@
   </url>
   
   <url>
-    <loc>http://example.com/tags/read/</loc>
+    <loc>http://example.com/tags/life/</loc>
     <lastmod>2024-08-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://example.com/tags/life/</loc>
+    <loc>http://example.com/tags/read/</loc>
     <lastmod>2024-08-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
