@@ -236,7 +236,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/12/11.Memory%20managemnet/</loc>
+    <loc>http://example.com/1970/01/01/11.Memory%20managemnet/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -245,7 +245,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/11/10.deadlock/</loc>
+    <loc>http://example.com/1970/01/01/10.deadlock/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -254,7 +254,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/11/9.%E7%95%AA%E5%A4%96%20%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98/</loc>
+    <loc>http://example.com/1970/01/01/9.%E7%95%AA%E5%A4%96%20%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -263,7 +263,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/14/13.page%20table/</loc>
+    <loc>http://example.com/1970/01/01/13.page%20table/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -272,7 +272,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/15/14.virtual%20memory/</loc>
+    <loc>http://example.com/1970/01/01/14.virtual%20memory/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -281,7 +281,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/13/12.segmation_page/</loc>
+    <loc>http://example.com/1970/01/01/12.segmation_page/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -290,7 +290,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/10/8.Semaphores/</loc>
+    <loc>http://example.com/1970/01/01/8.Semaphores/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -299,7 +299,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/09/5.CPU%20scheduling/</loc>
+    <loc>http://example.com/1970/01/01/5.CPU%20scheduling/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -308,7 +308,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/08/4.thread/</loc>
+    <loc>http://example.com/1970/01/01/4.thread/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -317,7 +317,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/08/3process%20scheduling%20and%20practice1/</loc>
+    <loc>http://example.com/1970/01/01/3process%20scheduling%20and%20practice1/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -326,7 +326,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/07/2.process%20concept/</loc>
+    <loc>http://example.com/1970/01/01/2.process%20concept/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -335,7 +335,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/07/1.operating-System-Structures/</loc>
+    <loc>http://example.com/1970/01/01/1.operating-System-Structures/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -344,7 +344,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/16/15.mass%20storage/</loc>
+    <loc>http://example.com/1970/01/01/15.mass%20storage/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -353,7 +353,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/10/7.mutex%20locks/</loc>
+    <loc>http://example.com/1970/01/01/7.mutex%20locks/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -362,7 +362,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/09/6.Synchronization/</loc>
+    <loc>http://example.com/1970/01/01/6.Synchronization/</loc>
     
     <lastmod>2023-05-17</lastmod>
     
@@ -499,7 +499,7 @@
 
   <url>
     <loc>http://example.com/</loc>
-    <lastmod>2024-08-04</lastmod>
+    <lastmod>2024-08-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -507,70 +507,70 @@
   
   <url>
     <loc>http://example.com/tags/oprating-system/</loc>
-    <lastmod>2024-08-04</lastmod>
+    <lastmod>2024-08-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/</loc>
-    <lastmod>2024-08-04</lastmod>
+    <lastmod>2024-08-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/dpdk/</loc>
-    <lastmod>2024-08-04</lastmod>
+    <lastmod>2024-08-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/%E4%BB%8E0%E5%88%B01/</loc>
-    <lastmod>2024-08-04</lastmod>
+    <lastmod>2024-08-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</loc>
-    <lastmod>2024-08-04</lastmod>
+    <lastmod>2024-08-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/</loc>
-    <lastmod>2024-08-04</lastmod>
+    <lastmod>2024-08-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/c-11/</loc>
-    <lastmod>2024-08-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://example.com/tags/c-%E5%AD%A6%E4%B9%A0/</loc>
-    <lastmod>2024-08-04</lastmod>
+    <lastmod>2024-08-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/life/</loc>
-    <lastmod>2024-08-04</lastmod>
+    <lastmod>2024-08-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/tags/c-%E5%AD%A6%E4%B9%A0/</loc>
+    <lastmod>2024-08-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/read/</loc>
-    <lastmod>2024-08-04</lastmod>
+    <lastmod>2024-08-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
