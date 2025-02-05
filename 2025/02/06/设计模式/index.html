@@ -9,7 +9,7 @@
     <meta name="description" content="设计模式组件协作模式 现代软件分工之后的第一个结果是”框架与应用程序的划分”，”组件协作”模式通过晚期绑定来实现框架与应用程序的松耦合，是二者之间协作时常用的模式 典型模式：  Template Method Strategy Observer &#x2F; Event   模板方法： Motivation  在软件的构建过程中，对于某一项任务，它常常有稳定的整体结构，但各个子步骤却有很多改变的需">
 <meta property="og:type" content="article">
 <meta property="og:title" content="设计模式">
-<meta property="og:url" content="http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:url" content="http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/index.html">
 <meta property="og:site_name" content="boolsatellite">
 <meta property="og:description" content="设计模式组件协作模式 现代软件分工之后的第一个结果是”框架与应用程序的划分”，”组件协作”模式通过晚期绑定来实现框架与应用程序的松耦合，是二者之间协作时常用的模式 典型模式：  Template Method Strategy Observer &#x2F; Event   模板方法： Motivation  在软件的构建过程中，对于某一项任务，它常常有稳定的整体结构，但各个子步骤却有很多改变的需">
 <meta property="og:locale" content="en_US">
@@ -33,8 +33,8 @@
 <meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2025-01-16_12-10-29.png">
 <meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2025-01-17_14-18-44.png">
 <meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2025-01-23_11-04-19.png">
-<meta property="article:published_time" content="2024-02-05T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-02-05T16:04:22.653Z">
+<meta property="article:published_time" content="2025-02-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-02-05T16:06:48.993Z">
 <meta property="article:author" content="boolsatellite">
 <meta property="article:tag" content="设计模式">
 <meta name="twitter:card" content="summary">
@@ -101,10 +101,8 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" aria-label="Previous post" href="/2024/07/20/%E5%86%B3%E8%83%9C%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
-        
-        <li><a class="icon" aria-label="Next post" href="/2024/02/05/io_uring/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Next post" href="/2024/12/12/%E7%A7%8B%E6%8B%9B%E6%97%A5%E8%AE%B0/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -117,17 +115,17 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&text=设计模式"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&is_video=false&description=设计模式"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=设计模式&body=Check out this article: http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&name=设计模式&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&t=设计模式"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&text=设计模式"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&is_video=false&description=设计模式"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=设计模式&body=Check out this article: http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&name=设计模式&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&t=设计模式"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -156,7 +154,7 @@
       
     <div class="postdate">
       
-        <time datetime="2024-02-05T16:00:00.000Z" itemprop="datePublished">2024-02-06</time>
+        <time datetime="2025-02-05T16:00:00.000Z" itemprop="datePublished">2025-02-06</time>
         
       
     </div>
@@ -712,17 +710,17 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&text=设计模式"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&is_video=false&description=设计模式"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=设计模式&body=Check out this article: http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&name=设计模式&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&t=设计模式"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&text=设计模式"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&is_video=false&description=设计模式"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=设计模式&body=Check out this article: http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&title=设计模式"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&name=设计模式&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/02/06/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/&t=设计模式"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
