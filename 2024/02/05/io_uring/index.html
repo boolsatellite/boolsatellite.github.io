@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="io_uring在linux 5.1 版本之后，Linux内核提供了异步IO的框架支持，提供了三个系统调用  io_uring_enter  io_uring_register  io_uring_setup 在liburing.h头文件中对此系统调用进行了封装，如： 123456int io_uring_enter(int ring_fd, unsigned int to_submit,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="io_uring">
+<meta property="og:url" content="http://example.com/2024/02/05/io_uring/index.html">
+<meta property="og:site_name" content="boolsatellite">
+<meta property="og:description" content="io_uring在linux 5.1 版本之后，Linux内核提供了异步IO的框架支持，提供了三个系统调用  io_uring_enter  io_uring_register  io_uring_setup 在liburing.h头文件中对此系统调用进行了封装，如： 123456int io_uring_enter(int ring_fd, unsigned int to_submit,">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/v2-ad01522fd88442e9164001926b3d839c_r.png">
+<meta property="og:image" content="http://example.com/img/v2-f688ede3a66c848fb4e3333767dfd9cc_r.png">
+<meta property="og:image" content="http://example.com/img/v2-670198a5e28380ee33809eec41d39e04_r.png">
+<meta property="article:published_time" content="2024-02-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-12-18T12:31:01.427Z">
+<meta property="article:author" content="boolsatellite">
+<meta property="article:tag" content="read">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/v2-ad01522fd88442e9164001926b3d839c_r.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>io_uring</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="boolsatellite" type="application/atom+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/07/20/%E5%86%B3%E8%83%9C%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/01/16/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AE%9E%E6%88%98/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/02/05/io_uring/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/02/05/io_uring/&text=io_uring"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/02/05/io_uring/&title=io_uring"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/02/05/io_uring/&is_video=false&description=io_uring"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=io_uring&body=Check out this article: http://example.com/2024/02/05/io_uring/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/02/05/io_uring/&title=io_uring"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/02/05/io_uring/&title=io_uring"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/02/05/io_uring/&title=io_uring"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/02/05/io_uring/&title=io_uring"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/02/05/io_uring/&name=io_uring&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/02/05/io_uring/&t=io_uring"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#io-uring"><span class="toc-number">1.</span> <span class="toc-text">io_uring</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">性能：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">1.2.</span> <span class="toc-text">初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-number">1.3.</span> <span class="toc-text">任务的定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="toc-number">1.4.</span> <span class="toc-text">任务的创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%8F%90%E4%BA%A4%E4%B8%8E%E6%94%B6%E5%89%B2"><span class="toc-number">1.5.</span> <span class="toc-text">任务的提交与收割</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#liburing"><span class="toc-number">1.6.</span> <span class="toc-text">liburing</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#link-operation"><span class="toc-number">1.6.1.</span> <span class="toc-text">link operation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#regster"><span class="toc-number">1.6.2.</span> <span class="toc-text">regster</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#queue-polling"><span class="toc-number">1.6.3.</span> <span class="toc-text">queue polling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#eventfd"><span class="toc-number">1.6.4.</span> <span class="toc-text">eventfd</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        io_uring
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">boolsatellite</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-02-04T16:00:00.000Z" itemprop="datePublished">2024-02-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/read/" rel="tag">read</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="io-uring"><a href="#io-uring" class="headerlink" title="io_uring"></a>io_uring</h1><p>在linux 5.1 版本之后，Linux内核提供了异步IO的框架支持，提供了三个系统调用 <code> io_uring_enter  io_uring_register  io_uring_setup</code> 在liburing.h头文件中对此系统调用进行了封装，如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">io_uring_enter</span><span class="params">(<span class="type">int</span> ring_fd, <span class="type">unsigned</span> <span class="type">int</span> to_submit,</span></span><br><span class="line"><span class="params">                   <span class="type">unsigned</span> <span class="type">int</span> min_complete, <span class="type">unsigned</span> <span class="type">int</span> flags)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="type">int</span>) syscall(__NR_io_uring_enter, ring_fd, to_submit, min_complete,</span><br><span class="line">                         flags, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中系统调用号<code>__NR_io_uring_enter</code> 在<code>unistd_64.h</code>中被定义：<code>#define __NR_io_uring_enter 426</code></p>
+<h2 id="性能："><a href="#性能：" class="headerlink" title="性能："></a>性能：</h2><p>由于调用系统调用时，会从用户态切换到内核态，从而进行上下文切换，而上下文切换会消耗一定的 CPU 时间。<code>io_uring</code> 为了减少或者摒弃系统调用，采用了用户态与内核态共享内存的方式来通信(用户态对共享内存进行读写操作是不需要使用系统调用的，所以不会发生上下文切换的情况)。</p>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">io_uring_setup</span><span class="params">(u32 entries, <span class="keyword">struct</span> io_uring_params *p)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>用户通过调用 <code>io_uring_setup </code>初始化一个新的 <code>io_uring</code> 上下文。该函数返回一个 file descriptor，并将 <code>io_uring</code> 支持的功能、以及各个数据结构在 <code>fd</code> 中的偏移量存入 <code>params</code>。用户根据偏移量将 <code>fd</code> 映射到内存 (mmap) 后即可获得一块内核用户共享的内存区域。这块内存区域中，有 <code>io_uring</code> 的上下文信息：提交队列信息 (<code>SQ_RING</code>) 和完成队列信息 (<code>CQ_RING</code>)；还有一块专门用来存放提交队列元素的区域 (SQEs)。<code>SQ_RING</code> 中只存储 SQE 在 SQEs 区域中的序号，<code>CQ_RING</code> 存储完整的任务完成数据。</p>
+<p><img src="/img/v2-ad01522fd88442e9164001926b3d839c_r.png"></p>
+<p><code>io_uring</code> 在创建时有两个选项(flag)，对应着 <code>io_uring</code> 处理任务的不同方式：</p>
+<ul>
+<li>开启 <code>IORING_SETUP_IOPOLL</code> 后，<code>io_uring</code> 会使用轮询的方式执行所有的操作。</li>
+<li>开启 <code>IORING_SETUP_SQPOLL</code> 后，<code>io_uring</code> 会创建一个内核线程专门用来收割用户提交的任务。</li>
+<li>都不开启，通过 <code>io_uring_enter</code> 提交任务，收割任务无需 syscall。</li>
+</ul>
+<p><code>io_uring_setup</code> 设计的巧妙之处在于，内核通过一块和用户共享的内存区域进行消息的传递。在创建上下文后，任务提交、任务收割等操作都通过这块共享的内存区域进行，在 <code>IO_SQPOLL</code> 模式下，可以完全绕过 Linux 的 syscall 机制完成需要内核介入的操作（比如读写文件），大大减少了 syscall 切换上下文、刷 TLB 的开销。</p>
+<h2 id="任务的定义"><a href="#任务的定义" class="headerlink" title="任务的定义"></a>任务的定义</h2><p><code>io_uring</code> 定义的异步 io 请求，对应宏定义</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> IORING_OP_NOP		0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IORING_OP_READV		1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IORING_OP_WRITEV	2</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IORING_OP_FSYNC		3</span></span><br></pre></td></tr></table></figure>
+
+<p>内核中定义了<code>io_op_defs</code>数组用与描述对应的异步 io 请求所需要的条件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">io_op_def</span> <span class="title">io_op_defs</span>[] =</span> &#123;</span><br><span class="line">	[IORING_OP_NOP] = &#123;&#125;,</span><br><span class="line">	[IORING_OP_READV] = &#123;</span><br><span class="line">		.needs_file		= <span class="number">1</span>,				<span class="comment">//表示该操作需要文件描述符。</span></span><br><span class="line">		.unbound_nonreg_file	= <span class="number">1</span>,		 <span class="comment">//表示该操作需要非正则文件</span></span><br><span class="line">		.pollin			= <span class="number">1</span>,				<span class="comment">//表示该操作需要poll in。</span></span><br><span class="line">		.buffer_select		= <span class="number">1</span>,			<span class="comment">//表示该操作需要buffer_select</span></span><br><span class="line">		.needs_async_setup	= <span class="number">1</span>,			<span class="comment">//表示该操作需要异步设置。</span></span><br><span class="line">		.plug			= <span class="number">1</span>,			   <span class="comment">//表示该操作需要plug。	 </span></span><br><span class="line">		.async_size		= <span class="keyword">sizeof</span>(<span class="keyword">struct</span> io_async_rw),	<span class="comment">//表示该操作的异步结构体大小</span></span><br><span class="line">	&#125;,	</span><br><span class="line">	[IORING_OP_WRITEV] = &#123;</span><br><span class="line">		.needs_file		= <span class="number">1</span>,</span><br><span class="line">		.hash_reg_file		= <span class="number">1</span>,</span><br><span class="line">		.unbound_nonreg_file	= <span class="number">1</span>,</span><br><span class="line">		.pollout		= <span class="number">1</span>,</span><br><span class="line">		.needs_async_setup	= <span class="number">1</span>,</span><br><span class="line">		.plug			= <span class="number">1</span>,</span><br><span class="line">		.async_size		= <span class="keyword">sizeof</span>(<span class="keyword">struct</span> io_async_rw),</span><br><span class="line">	&#125;,</span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>io_uring</code> 中几乎每个操作都有对应的准备和执行函数。比如 <code>read</code> 操作就对应 <code>io_read_prep</code> 和 <code>io_read</code> 函数。除了同步操作，内核还支持异步调用的操作，对于这些操作，<code>io_uring</code>中还会有一个对应的异步准备函数以 <code>_async</code> 结尾</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">io_sendmsg_prep_async</span><span class="params">(<span class="keyword">struct</span> io_kiocb *req)</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">int</span> <span class="title function_">io_rw_prep_async</span><span class="params">(<span class="keyword">struct</span> io_kiocb *req, <span class="type">int</span> rw)</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="任务的创建"><a href="#任务的创建" class="headerlink" title="任务的创建"></a>任务的创建</h2><p><strong>用户将需要进行的操作写入 <code>io_uring</code> 的 SQ 中。在 CQ 中，用户可以收割任务的完成情况。</strong></p>
+<p>sqe的结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring_sqe</span> &#123;</span></span><br><span class="line">	__u8	opcode;		<span class="comment">/* type of operation for this sqe */</span></span><br><span class="line">	__u8	flags;		<span class="comment">/* IOSQE_ flags */</span></span><br><span class="line">	__u16	ioprio;		<span class="comment">/* ioprio for the request */</span></span><br><span class="line">	__s32	fd;		<span class="comment">/* file descriptor to do IO on */</span></span><br><span class="line">	__u64	off;		<span class="comment">/* offset into file */</span></span><br><span class="line">	__u64	addr;		<span class="comment">/* pointer to buffer or iovecs */</span></span><br><span class="line">	__u32	len;		<span class="comment">/* buffer size or number of iovecs */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">		<span class="type">__kernel_rwf_t</span>	rw_flags;</span><br><span class="line">		__u32		fsync_flags;</span><br><span class="line">		__u16		poll_events;</span><br><span class="line">		__u32		sync_range_flags;</span><br><span class="line">		__u32		msg_flags;</span><br><span class="line">		__u32		timeout_flags;</span><br><span class="line">	&#125;;</span><br><span class="line">	__u64	user_data;	<span class="comment">/* data to be passed back at completion time */</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">		__u16	buf_index;	<span class="comment">/* index into fixed buffers, if used */</span></span><br><span class="line">		__u64	__pad2[<span class="number">3</span>];</span><br><span class="line">	&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>如要进行<code>readv</code> 操作：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sqe-&gt;fd = filefd;						<span class="comment">//需要操作的文件描述符</span></span><br><span class="line">sqe-&gt;flags = <span class="number">0</span>;							</span><br><span class="line">sqe-&gt;opcode = IORING_OP_READV;			 <span class="comment">//readv对应option_code</span></span><br><span class="line">sqe-&gt;addr = &amp;iovecs;	  				<span class="comment">//存放的起始地址</span></span><br><span class="line">sqe-&gt;len = blocks;						<span class="comment">//对应 iovec 数组的长度</span></span><br><span class="line">sqe-&gt;off = <span class="number">0</span>;							<span class="comment">//从文件偏移位置为0处开始</span></span><br></pre></td></tr></table></figure>
+
+<p>通常来说，使用 <code>io_uring</code> 的程序都需要用到 64 位的 <code>user_data</code> 来唯一标识一个操作。<code>user_data</code> 是 SQE 的一部分。<code>io_uring</code> 执行完某个操作后，会将这个操作的 <code>user_data</code> 和操作的返回值一起写入 CQ 中。一般携带指向堆内存的指针</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring_cqe</span> &#123;</span></span><br><span class="line">	__u64	user_data;	<span class="comment">/* sqe-&gt;data submission passed back */</span></span><br><span class="line">	__s32	res;		<span class="comment">/* result code for this event */</span></span><br><span class="line">	__u32	flags;		<span class="comment">// 未使用</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p> <code>io_ uring</code> 是一个异步接口，<code>errno</code> 将不用于传回错误信息。与此对应，<code>res</code> 将保存在成功的情况下等效的系统调用将要返回的内容，而在出错的情况下 <code>res</code> 将包含<code>-errno</code>。例如，如果正常读取系统调用返回<code>-1</code>并将<code>errno</code>设置为<code>EINVAL</code>，则<code>res</code>将包含<code>-EINVAL</code>。</p>
+<h2 id="任务的提交与收割"><a href="#任务的提交与收割" class="headerlink" title="任务的提交与收割"></a>任务的提交与收割</h2><p><code>io_uring</code> 通过环形队列和用户交互。</p>
+<p><img src="/img/v2-f688ede3a66c848fb4e3333767dfd9cc_r.png"></p>
+<p>我们的先以用户提交任务为例，介绍 <code>io_uring</code> 的内核用户交互方式。用户提交任务的过程如下：</p>
+<ul>
+<li>将 SQE 写入 SQEs 区域，而后将 SQE 编号写入 SQ。（对应图中绿色第一步）</li>
+<li>更新用户态记录的队头。（对应图中绿色第二步）</li>
+<li>如果有多个任务需要同时提交，用户不断重复上面的过程。</li>
+<li>将最终的队头编号写入与内核共享的 <code>io_uring</code> 上下文。（对应图中绿色第三步）</li>
+</ul>
+<p>接下来我们简要介绍内核获取任务、内核完成任务、用户收割任务的过程。</p>
+<ul>
+<li>内核态获取任务的方式是，从队尾读取 SQE，并更新 <code>io_uring</code> 上下文的 SQ tail。</li>
+</ul>
+<p><img src="/img/v2-670198a5e28380ee33809eec41d39e04_r.png"></p>
+<ul>
+<li>内核态完成任务：往 CQ 中写入 CQE，更新上下文 CQ head。</li>
+<li>用户态收割任务：从 CQ 中读取 CQE，更新上下文 CQ tail。</li>
+</ul>
+<p><code>io_uring</code> 在创建时有两个选项，对应着 <code>io_uring</code> 处理任务的不同方式：</p>
+<ul>
+<li>开启 <code>IORING_SETUP_IOPOLL</code> 后，<code>io_uring</code> 会使用轮询的方式执行所有的操作。</li>
+<li>开启 <code>IORING_SETUP_SQPOLL</code> 后，<code>io_uring</code> 会创建一个内核线程专门用来收割用户提交的任务。</li>
+</ul>
+<p>这些选项的设定会影响之后用户与 <code>io_uring</code> 交互的方式：</p>
+<ul>
+<li>都不开启，通过 <code>io_uring_enter</code> 提交任务，收割任务无需 syscall。</li>
+<li>只开启 <code>IORING_SETUP_IOPOLL</code>，通过 <code>io_uring_enter</code> 提交任务和收割任务。</li>
+<li>开启 <code>IORING_SETUP_SQPOLL</code>，无需任何 syscall 即可提交、收割任务。内核线程在一段时间无操作后会休眠，可以通过 <code>io_uring_enter</code> 唤醒。</li>
+</ul>
+<h2 id="liburing"><a href="#liburing" class="headerlink" title="liburing"></a>liburing</h2><p>使用流程：</p>
+<ol>
+<li><p>使用io_uring_queue_init，完成io_uring相关结构的初始化。在这个函数的实现中，会调用多个mmap来初始化一些内存。</p>
+</li>
+<li><p>初始化完成之后，为了提交IO请求，需要获取里面queue的一个项，使用io_uring_get_sqe。</p>
+</li>
+<li><p>获取到了空闲项之后，使用io_uring_prep_readv、io_uring_prep_writev初始化读、写请求。和前文所提preadv、pwritev的思想差不多，这里直接以不同的操作码委托io_uring_prep_rw，io_uring_prep_rw只是简单地初始化io_uring_sqe。</p>
+</li>
+<li><p>准备完成之后，使用io_uring_submit提交请求。</p>
+</li>
+<li><p>提交了IO请求时，可以通过非阻塞式函数io_uring_peek_cqe、阻塞式函数io_uring_wait_cqe获取请求完成的情况。默认情况下，完成的IO请求还会存在内部的队列中，需要通过io_uring_cqe_seen表标记完成操作。</p>
+</li>
+<li><p>使用完成之后要通过io_uring_queue_exit来完成资源清理的工作。</p>
+</li>
+</ol>
+<h3 id="link-operation"><a href="#link-operation" class="headerlink" title="link operation"></a>link operation</h3><p>在io_uring中完成的任务并不是按照提交顺序返回的，有时我们需要按顺序的完成一组任务，这需要设置<code>sqe</code>对应的flag，为<code>flag</code>添加 <code>IOSQE_IO_LINK</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">io_uring_prep_write(sqe, fd, STR, <span class="built_in">strlen</span>(STR), <span class="number">0</span> );</span><br><span class="line">sqe-&gt;flags |= IOSQE_IO_LINK;						<span class="comment">//添加link flag</span></span><br><span class="line"></span><br><span class="line">sqe = io_uring_get_sqe(ring);</span><br><span class="line"><span class="keyword">if</span> (!sqe) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Could not get SQE.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">io_uring_prep_read(sqe, fd, buff, <span class="built_in">strlen</span>(STR),<span class="number">0</span>);</span><br><span class="line">sqe-&gt;flags |= IOSQE_IO_LINK;						<span class="comment">//添加link flag</span></span><br><span class="line"></span><br><span class="line">sqe = io_uring_get_sqe(ring);</span><br><span class="line"><span class="keyword">if</span> (!sqe) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Could not get SQE.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line">io_uring_prep_close(sqe, fd);</span><br><span class="line">io_uring_submit(ring);</span><br></pre></td></tr></table></figure>
+
+<p><code>IOSQE_IO_LINK</code>使得本<code>sqe</code>与下一提交的<code>sqe</code>相关联，即两个任务之间有了先后顺序，如上代码就保证了，先读后写最后关闭</p>
+<p>倘若我们操作的文件没有对应的权限，如没有写权限，文件以 O_WRONLY 打开，那么read操作将失败，这将导致后续link的操作全部失败</p>
+<p>当涉及链接操作时，一个操作的失败将导致所有后续链接操作失败，并出现 errno“Operation cancelled”</p>
+<h3 id="regster"><a href="#regster" class="headerlink" title="regster"></a>regster</h3><p>注册文件或用户缓冲区允许内核长期引用内部数据结构或创建应用程序内存的长期映射，从而大大减少每个I&#x2F;O的开销。</p>
+<p>应用程序可以增加或减少已注册缓冲区的大小或数量，方法是首先取消注册现有缓冲区，然后使用新缓冲区发出对io_uring_register（）的新调用。注册缓冲区将等待环空闲。如果应用程序当前有正在处理的请求，注册将等待这些请求完成后再继续。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">io_uring_register_buffers</span><span class="params">(<span class="keyword">struct</span> io_uring *ring, <span class="type">const</span> <span class="keyword">struct</span> iovec *iovecs, <span class="type">unsigned</span> nr_iovecs)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">io_uring_prep_write_fixed</span><span class="params">(<span class="keyword">struct</span> io_uring_sqe *sqe,</span></span><br><span class="line"><span class="params">                               <span class="type">int</span> fd,</span></span><br><span class="line"><span class="params">                               <span class="type">const</span> <span class="type">void</span> *buf,</span></span><br><span class="line"><span class="params">                               <span class="type">unsigned</span> nbytes,</span></span><br><span class="line"><span class="params">                               __u64 offset,</span></span><br><span class="line"><span class="params">                               <span class="type">int</span> buf_index)</span>;</span><br><span class="line"> <span class="type">void</span> <span class="title function_">io_uring_prep_read_fixed</span><span class="params">(<span class="keyword">struct</span> io_uring_sqe *sqe,</span></span><br><span class="line"><span class="params">                               <span class="type">int</span> fd,</span></span><br><span class="line"><span class="params">                               <span class="type">void</span> *buf,</span></span><br><span class="line"><span class="params">                               <span class="type">unsigned</span> nbytes,</span></span><br><span class="line"><span class="params">                               __u64 offset,</span></span><br><span class="line"><span class="params">                               <span class="type">int</span> buf_index)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在register后，对映射后的内存进行read &#x2F; write 操作时，避免一次数据copy，register可以理解为将iovec mmap 到内核中，这样在进行read 或 write 后就少了一次copy</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = open(FILE_NAME, O_RDWR|O_TRUNC|O_CREAT, <span class="number">0644</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++) &#123;</span><br><span class="line">    iov[i].iov_base = <span class="built_in">malloc</span>(BUF_SIZE);</span><br><span class="line">    iov[i].iov_len = BUF_SIZE;</span><br><span class="line">    <span class="built_in">memset</span>(iov[i].iov_base, <span class="number">0</span>, BUF_SIZE);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> ret = io_uring_register_buffers(ring, iov, <span class="number">4</span>);</span><br><span class="line">sqe = io_uring_get_sqe(ring);</span><br><span class="line">io_uring_prep_write_fixed(sqe, fd, iov[<span class="number">0</span>].iov_base, str1_sz, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">io_uring_submit(ring);</span><br><span class="line">io_uring_wait_cqe(ring, &amp;cqe);</span><br><span class="line">io_uring_cqe_seen(ring, cqe);</span><br></pre></td></tr></table></figure>
+
+<p>注册文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">io_uring_register_files</span><span class="params">(<span class="keyword">struct</span> io_uring *ring, <span class="type">const</span> <span class="type">int</span> *files , <span class="type">unsigned</span> nr_files)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在用于提交的SQE中，您在使用文件描述符数组中的文件描述符索引而不是在像<code> io_uring_prep_readv（）</code>和<code>io_uring_prep_writev（）</code>这样的调用中使用文件描述符本身时设置了<code>IOSQE_FIXED_FILE</code> 标志。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">   <span class="type">int</span> fds[<span class="number">2</span>];</span><br><span class="line">   <span class="class"><span class="keyword">struct</span> <span class="title">io_uring_sqe</span> *<span class="title">sqe</span>;</span></span><br><span class="line">   <span class="class"><span class="keyword">struct</span> <span class="title">io_uring_cqe</span> *<span class="title">cqe</span>;</span></span><br><span class="line">   <span class="type">int</span> ret = io_uring_register_files(ring, fds, <span class="number">1</span>);</span><br><span class="line">   sqe = io_uring_get_sqe(ring);</span><br><span class="line">   io_uring_prep_write(sqe, <span class="number">0</span>, buff1, str1_sz, <span class="number">0</span>);		</span><br><span class="line">   <span class="comment">//这里的0表示注册的一组文件描述符的索引只有在设置flag |= IOSQE_FIXED_FILE 有效</span></span><br><span class="line">   sqe-&gt;flags |= IOSQE_FIXED_FILE;	</span><br><span class="line">io_uring_submit(ring);</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="queue-polling"><a href="#queue-polling" class="headerlink" title="queue polling"></a>queue polling</h3><p>减少系统调用的数量是IO的一个主要目标。为此，<code>io_uring</code>允许提交I&#x2F;O请求，而无需进行单个系统调用。这是通过<code>io_uring</code>支持的一个特殊的提交队列轮询特性完成的。在这种模式下，在程序设置轮询模式后，<code>o_uring</code>启动一个特殊的内核线程，该线程轮询共享提交队列中程序可能添加的条目。这样，您只需将条目提交到共享队列中，内核线程应该看到它并拾取提交队列条目，而无需您的程序进行io_uring_enter（）系统调用。这是在用户空间和内核之间共享队列的一个好处。</p>
+<p>通过在io_uring_params结构的flags成员中设置IORING_SETUP_SQPOLL标志，可以告诉io_uring要使用此模式。如果内核线程在一段时间内没有看到任何提交，它将退出，需要再次调用io_uring_enter（）系统调用来唤醒内核线程，这里的时间由 io_uring_param 的成员 <code>sq_thread_idle</code> 所决定</p>
+<p>在使用liburing时，您永远不会直接调用 <code> io_uring_enter（）</code>系统调用。这通常是由<code>liburing</code>的<code> io_uring_submit（）</code>函数来处理的。它会自动判断你是否在使用轮询模式，并处理你的程序何时需要调用<code> io_uring_enter（）</code>，而你不必为此费心。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring</span> <span class="title">ring</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring_params</span> <span class="title">params</span>;</span></span><br><span class="line"><span class="built_in">memset</span>(&amp;params, <span class="number">0</span>, <span class="keyword">sizeof</span>(params));</span><br><span class="line">params.flags |= IORING_SETUP_SQPOLL;			<span class="comment">// 设置poll模式</span></span><br><span class="line">params.sq_thread_idle = <span class="number">2000</span>;</span><br><span class="line">io_uring_queue_init_params(<span class="number">8</span>, &amp;ring, &amp;params);</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="eventfd"><a href="#eventfd" class="headerlink" title="eventfd"></a>eventfd</h3><p>首先我们回顾下 eventfd 系统调用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">eventfd</span><span class="params">(<span class="type">unsigned</span> <span class="type">int</span> initval, <span class="type">int</span> flags)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>读操作：</p>
+<p>每次成功的 read(2) 操作都会返回一个 8 字节的整数。如果提供的缓冲区大小小于 8 字节，则 read(2) 会失败并返回错误 EINVAL。</p>
+<p>read(2) 返回的值采用主机字节序，即主机上用于整数的本机字节序。</p>
+<p>read(2) 的行为取决于 eventfd 计数器当前是否具有非零值以及创建 eventfd 文件描述符时是否指定了 EFD_SEMAPHORE 标志：</p>
+<ul>
+<li><p>如果未指定 EFD_SEMAPHORE 并且 eventfd 计数器具有非零值，则 read(2) 会返回 8 字节的数据，其中包含该值，并将计数器的值重置为零。</p>
+</li>
+<li><p>如果指定了 EFD_SEMAPHORE 并且 eventfd 计数器具有非零值，则 read(2) 会返回 8 字节的数据，其中包含值 1，并将计数器的值减 1。</p>
+</li>
+<li><p>如果在调用 read(2) 时 eventfd 计数器为零，则调用会阻塞，直到计数器变为非零（此时 read(2) 会按上述方式进行）；如果文件描述符已被设置为非阻塞，则会失败并返回错误 EAGAIN。</p>
+</li>
+</ul>
+<p>写操作：</p>
+<p>write(2) 调用会将其缓冲区中提供的 8 字节整数值<strong>添加</strong>到计数器中。计数器中可以存储的最大值是最大无符号 64 位值减 1（即 0xfffffffffffffffe）。如果加法会导致计数器的值超过最大值，那么 write(2) 会阻塞，直到对文件描述符执行 read(2) 操作，或者如果文件描述符已被设置为非阻塞，则会失败并返回错误 EAGAIN。</p>
+<p>liburing提供了封装</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">io_uring_register_eventfd</span><span class="params">(<span class="keyword">struct</span> io_uring *ring, <span class="type">int</span> fd)</span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>io_uring_register_eventfd</code> 将eventfd的文件描述符fd注册到io_uring环上，当完成队列中有事件时，会对event执行write操作</p>
+<p>如果不再需要通知，可以调用io_uring_unregister_eventfd（3）来删除eventfd注册。  不需要eventfd参数，因为一个环只能注册一个eventfd。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> BUFF_SZ   512</span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> buff[BUFF_SZ + <span class="number">1</span>];</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">io_uring</span> <span class="title">ring</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">error_exit</span><span class="params">(<span class="type">char</span> *message)</span> &#123;</span><br><span class="line">    perror(message);</span><br><span class="line">    <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> *<span class="title function_">listener_thread</span><span class="params">(<span class="type">void</span> *data)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">io_uring_cqe</span> *<span class="title">cqe</span>;</span></span><br><span class="line">    <span class="type">int</span> efd = (<span class="type">int</span>) data;</span><br><span class="line">    <span class="type">eventfd_t</span> v;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s: Waiting for completion event...\n&quot;</span>, __FUNCTION__);</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> ret = eventfd_read(efd, &amp;v);                <span class="comment">//首次调用会 block , 可读以为这有事件完成了</span></span><br><span class="line">    <span class="keyword">if</span> (ret &lt; <span class="number">0</span>) error_exit(<span class="string">&quot;eventfd_read&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s: Got completion event.\n&quot;</span>, __FUNCTION__);</span><br><span class="line"></span><br><span class="line">    ret = io_uring_wait_cqe(&amp;ring, &amp;cqe);</span><br><span class="line">    <span class="keyword">if</span> (ret &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Error waiting for completion: %s\n&quot;</span>,</span><br><span class="line">                strerror(-ret));</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/* Now that we have the CQE, let&#x27;s process it */</span></span><br><span class="line">    <span class="keyword">if</span> (cqe-&gt;res &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Error in async operation: %s\n&quot;</span>, strerror(-cqe-&gt;res));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Result of the operation: %d\n&quot;</span>, cqe-&gt;res);</span><br><span class="line">    io_uring_cqe_seen(&amp;ring, cqe);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Contents read from file:\n%s\n&quot;</span>, buff);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">setup_io_uring</span><span class="params">(<span class="type">int</span> efd)</span> &#123;</span><br><span class="line">    <span class="type">int</span> ret = io_uring_queue_init(<span class="number">8</span>, &amp;ring, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (ret) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Unable to setup io_uring: %s\n&quot;</span>, strerror(-ret));</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    io_uring_register_eventfd(&amp;ring, efd);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">read_file_with_io_uring</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">io_uring_sqe</span> *<span class="title">sqe</span>;</span></span><br><span class="line"></span><br><span class="line">    sqe = io_uring_get_sqe(&amp;ring);</span><br><span class="line">    <span class="keyword">if</span> (!sqe) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Could not get SQE.\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> fd = open(<span class="string">&quot;/etc/passwd&quot;</span>, O_RDONLY);</span><br><span class="line">    io_uring_prep_read(sqe, fd, buff, BUFF_SZ, <span class="number">0</span>);</span><br><span class="line">    io_uring_submit(&amp;ring);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">pthread_t</span> t;</span><br><span class="line">    <span class="type">int</span> efd;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Create an eventfd instance */</span></span><br><span class="line">    efd = eventfd(<span class="number">0</span>, <span class="number">0</span>);            <span class="comment">//创建eventfd</span></span><br><span class="line">    <span class="keyword">if</span> (efd &lt; <span class="number">0</span>)</span><br><span class="line">        error_exit(<span class="string">&quot;eventfd&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Create the listener thread */</span></span><br><span class="line">    pthread_create(&amp;t, <span class="literal">NULL</span>, listener_thread, (<span class="type">void</span> *)efd);</span><br><span class="line"></span><br><span class="line">    sleep(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Setup io_uring instance and register the eventfd */</span></span><br><span class="line">    setup_io_uring(efd);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Initiate a read with io_uring */</span></span><br><span class="line">    read_file_with_io_uring();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Wait for th listener thread to complete */</span></span><br><span class="line">    pthread_join(t, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* All done. Clean up and exit. */</span></span><br><span class="line">    io_uring_queue_exit(&amp;ring);</span><br><span class="line">    <span class="keyword">return</span> EXIT_SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://unixism.net/loti/index.html">https://unixism.net/loti/index.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/361955546">浅析开源项目之io_uring - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/1wZpFhwJR-LNkQm-QzFxRQ">图解原理｜Linux I&#x2F;O 神器之 io_uring (qq.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/380726590">https://zhuanlan.zhihu.com/p/380726590</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/334658432">https://zhuanlan.zhihu.com/p/334658432</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/tags/">tags</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li>
+         
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#io-uring"><span class="toc-number">1.</span> <span class="toc-text">io_uring</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">性能：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">1.2.</span> <span class="toc-text">初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-number">1.3.</span> <span class="toc-text">任务的定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="toc-number">1.4.</span> <span class="toc-text">任务的创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%8F%90%E4%BA%A4%E4%B8%8E%E6%94%B6%E5%89%B2"><span class="toc-number">1.5.</span> <span class="toc-text">任务的提交与收割</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#liburing"><span class="toc-number">1.6.</span> <span class="toc-text">liburing</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#link-operation"><span class="toc-number">1.6.1.</span> <span class="toc-text">link operation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#regster"><span class="toc-number">1.6.2.</span> <span class="toc-text">regster</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#queue-polling"><span class="toc-number">1.6.3.</span> <span class="toc-text">queue polling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#eventfd"><span class="toc-number">1.6.4.</span> <span class="toc-text">eventfd</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/02/05/io_uring/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/02/05/io_uring/&text=io_uring"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/02/05/io_uring/&title=io_uring"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/02/05/io_uring/&is_video=false&description=io_uring"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=io_uring&body=Check out this article: http://example.com/2024/02/05/io_uring/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/02/05/io_uring/&title=io_uring"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/02/05/io_uring/&title=io_uring"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/02/05/io_uring/&title=io_uring"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/02/05/io_uring/&title=io_uring"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/02/05/io_uring/&name=io_uring&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/02/05/io_uring/&t=io_uring"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    boolsatellite
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/boolsatellite">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SPWV8NBZ00"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-SPWV8NBZ00');
+    </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
