@@ -13,14 +13,14 @@
 <meta property="og:site_name" content="boolsatellite">
 <meta property="og:description" content="网络编程实战第四讲调用 connect 函数将激发 TCP 的三次握手过程，而且仅在连接建立成功或出错时才返回。其中出错返回可能有以下几种情况：  三次握手无法建立，客户端发出的 SYN 包没有任何响应，于是返回 TIMEOUT 错误。这种情况比较常见的原因是对应的服务端 IP 写错。 客户端收到了 RST（复位）回答，这时候客户端会立即返回 CONNECTION REFUSED 错误。这种情况比">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/%5Cimg%5CSnipaste_2023-12-18_22-51-37.png">
-<meta property="og:image" content="http://example.com/.%5Cimg%5CSnipaste_2023-12-27_23-10-09.png">
+<meta property="og:image" content="http://example.com/img/Snipaste_2023-12-18_22-51-37.png">
+<meta property="og:image" content="http://example.com/img/Snipaste_2023-12-27_23-10-09.png">
 <meta property="article:published_time" content="2024-01-15T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-12-18T12:31:01.430Z">
+<meta property="article:modified_time" content="2025-02-09T04:05:22.733Z">
 <meta property="article:author" content="boolsatellite">
 <meta property="article:tag" content="网络编程">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/%5Cimg%5CSnipaste_2023-12-18_22-51-37.png">
+<meta name="twitter:image" content="http://example.com/img/Snipaste_2023-12-18_22-51-37.png">
     
     
       
@@ -229,7 +229,7 @@
 <p>由于TCP自身的<code>KeepAlive</code>机制所需的时间太长，对很多对时延要求敏感的系统中，这个时间间隔是不可接受的。所以通常自实现心跳机制</p>
 <h2 id="第十三讲"><a href="#第十三讲" class="headerlink" title="第十三讲"></a>第十三讲</h2><p>Nagle算法 和 延迟ACK 的组合：</p>
 <p>客户端分两次将一个请求发送出去，由于请求的第一部分的报文未被确认，Nagle 算法开始起作用；同时延时 ACK 在服务器端起作用，假设延时时间为 200ms，服务器等待 200ms 后，对请求的第一部分进行确认；接下来客户端收到了确认后，Nagle 算法解除请求第二部分的阻止，让第二部分得以发送出去，服务器端在收到之后，进行处理应答，同时将第二部分的确认捎带发送出去。</p>
-<p><img src="/%5Cimg%5CSnipaste_2023-12-18_22-51-37.png"></p>
+<p><img src="/img/Snipaste_2023-12-18_22-51-37.png"></p>
 <p>Nagle 算法和延时确认组合在一起，增大了处理时延，实际上，两个优化彼此在阻止对方。从上面的例子可以看到，在有些情况下 Nagle 算法并不适用， 比如对时延敏感的应用</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> on = <span class="number">1</span>;             <span class="comment">//关闭 Nagle 算法</span></span><br><span class="line">setsockopt(sock , IPPROTO_TCP , TCP_NODELAY , (vodi*)&amp;on , <span class="keyword">sizeof</span>(on));</span><br></pre></td></tr></table></figure>
 
@@ -239,7 +239,7 @@
 
 <p><code>SO_REUSEADDR</code> 套接字选项还有一个作用，那就是本机服务器如果有多个地址(ip地址)，可以在不同地址上使用相同的端口提供服务。</p>
 <p>要在创建socket和bind之间设置 <code>SO_REUSEADDR</code> 套接字选项 因为<code>SO_REUSEADDR</code> 是针对新建立的连接才起作用，对已建立的连接设置是无效的。</p>
-<h2 id="第十七讲"><a href="#第十七讲" class="headerlink" title="第十七讲"></a>第十七讲</h2><p><img src="/.%5Cimg%5CSnipaste_2023-12-27_23-10-09.png"></p>
+<h2 id="第十七讲"><a href="#第十七讲" class="headerlink" title="第十七讲"></a>第十七讲</h2><p><img src="/img/Snipaste_2023-12-27_23-10-09.png"></p>
 <ul>
 <li>网络中断造成的对端无 FIN 包</li>
 </ul>
